@@ -43,10 +43,19 @@ export default function Home() {
         <p>Discover shoes from sellers around the Philippines. Browse listings and contact sellers directly through Messenger.</p>
         <div className="searchrow">
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search brand, shoe name, or keyword..." />
-          <a className="btn" href="/seller">Sell your shoes</a>
+          <button
+  className="btn"
+  type="button"
+  onClick={() =>
+    document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" })
+  }
+>
+  Search
+</button>
+
         </div>
       </section>
-      <h2>Latest shoe listings</h2>
+    <h2 id="listings">Latest shoe listings</h2>
       <div className="toolbar">
         <span className="muted">Category</span>
         <select value={category} onChange={e => setCategory(e.target.value)}>
