@@ -74,7 +74,16 @@ export default function Home() {
   Seller: <strong style={{ color: "#2563eb" }}>
     {p.seller_name || "Marketplace seller"}
   </strong>
-</p>
+</p>{p.messenger_url && (
+  <a
+    className="btn"
+    href={p.messenger_url}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Message Seller
+  </a>
+)}
           </div>
         </article>)}</div>}
     </main>
