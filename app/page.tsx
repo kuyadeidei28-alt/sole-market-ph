@@ -69,8 +69,12 @@ export default function Home() {
           {p.image_url ? <img className="product-image" src={p.image_url} alt={p.title} /> : <div className="placeholder">👟</div>}
           <div className="cardbody"><h3>{p.title}</h3><div className="muted">{p.brand || "Brand not specified"} · {p.size ? `Size ${p.size}` : "Size not specified"}</div>
             <div className="price">₱{Number(p.price).toLocaleString("en-PH")}</div>
-            <p className="muted">{p.description || ""}</p><p className="muted">Seller: {p.seller_name || "Marketplace seller"}</p>
-            <a className="btn" href={p.messenger_url} target="_blank" rel="noreferrer">Message seller</a>
+            <p className="muted">{p.description || ""}</p>
+            <p className="muted">
+  Seller: <strong style={{ color: "#2563eb" }}>
+    {p.seller_name || "Marketplace seller"}
+  </strong>
+</p>
           </div>
         </article>)}</div>}
     </main>
