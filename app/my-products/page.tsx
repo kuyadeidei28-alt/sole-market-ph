@@ -129,22 +129,25 @@ export default function MyProducts() {
         <p className="muted">Manage your shoe listings here.</p>
 
         <div className="grid">
-          <div className="card">
-            <h2>{products.length}</h2>
-            <p>Total Listings</p>
-          </div>
-          <div className="card">
-            <h2>{approved}</h2>
-            <p>Approved</p>
-          </div>
-          <div className="card">
-            <h2>{pending}</h2>
-            <p>Pending</p>
-          </div>
-          <div className="card">
-            <h2>{rejected}</h2>
-            <p>Rejected</p>
-          </div>
+         <div className="card" style={{background:"#E5F1FF", border:"1px solid #BFDBFE", borderRadius:"14px", padding:"20px"}}>
+  <h2 style={{color:"#2563EB", fontSize:"30px"}}>{products.length}</h2>
+  <p style={{color:"#1D4ED8", fontWeight:"bold"}}>Total Listings</p>
+</div>
+
+<div className="card" style={{background:"#DCFCE7", border:"1px solid #BBF7D0", borderRadius:"14px", padding:"20px"}}>
+  <h2 style={{color:"#16A34A", fontSize:"30px"}}>{approved}</h2>
+  <p style={{color:"#15803D", fontWeight:"bold"}}>Approved</p>
+</div>
+
+<div className="card" style={{background:"#FEF3C7", border:"1px solid #FDE68A", borderRadius:"14px", padding:"20px"}}>
+  <h2 style={{color:"#D97706", fontSize:"30px"}}>{pending}</h2>
+  <p style={{color:"#B45309", fontWeight:"bold"}}>Pending</p>
+</div>
+
+<div className="card" style={{background:"#FEE2E2", border:"1px solid #FECACA", borderRadius:"14px", padding:"20px"}}>
+  <h2 style={{color:"#DC2626", fontSize:"30px"}}>{rejected}</h2>
+  <p style={{color:"#B91C1C", fontWeight:"bold"}}>Rejected</p>
+</div>
         </div>
 
         {message && <p className="notice">{message}</p>}
