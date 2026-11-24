@@ -1,16 +1,22 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 export default function Login() {
+  const router = useRouter();
   const [email,setEmail]=useState(""); const [password,setPassword]=useState("");
   const [message,setMessage]=useState("");
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!supabase) { setMessage("Supabase is not configured. Follow the README setup steps."); return; }
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setMessage(error ? error.message : "Logged in. You can now open the seller dashboard.");
+    if (error) {
+  setMessage(error.message);
+} else {
+  router.push("/dashboard");
+}
   }
   async function signup() {
     if (!supabase) { setMessage("Supabase is not configured. Follow the README setup steps."); return; }
