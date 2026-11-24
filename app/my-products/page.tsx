@@ -192,11 +192,11 @@ const filteredProducts = products.filter((p) => {
       </Link>
     </aside>
 
-    <main style={{
-      flex: 1,
-      minWidth: 0,
-      padding: "30px"
-   }}>
+    <main className="seller-main" style={{
+  flex: 1,
+  minWidth: 0,
+  padding: "30px"
+}}>
 <style jsx>{`
 
   .mobile-menu-button {
@@ -204,6 +204,26 @@ const filteredProducts = products.filter((p) => {
   }
 
   @media (max-width: 768px) {
+  .seller-sidebar {
+  display: none;
+}
+
+.seller-sidebar.mobile-open {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 260px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 3px 0 15px rgba(0,0,0,0.15);
+}
+
+.seller-main {
+  width: 100%;
+  padding: 15px !important;
+}
     .mobile-menu-button {
       display: block;
     }
