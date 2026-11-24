@@ -78,7 +78,7 @@ export default function Dashboard() {
               <p className="muted">
                 Manage your shoe listings.
               </p>
-              <Link className="btn" href="/seller">
+              <Link className="btn" href="/my-products">
                 Manage Products
               </Link>
             </div>
