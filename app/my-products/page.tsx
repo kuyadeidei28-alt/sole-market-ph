@@ -218,7 +218,35 @@ export default function MyProducts() {
                 <p>{product.brand}</p>
                 <h3>₱{Number(product.price).toLocaleString("en-PH")}</h3>
                 <p className="muted">{product.description}</p>
-                <p>Status: <strong>{product.status?.toUpperCase()}</strong></p>
+                <div style={{
+  background: "#EFF6FF",
+  border: "1px solid #BFDBFE",
+  borderRadius: "12px",
+  padding: "12px",
+  marginTop: "12px"
+}}>
+  <p style={{
+    color: "#2563EB",
+    fontWeight: "bold",
+    fontSize: "13px"
+  }}>
+    MARKETPLACE LISTING PREVIEW
+  </p>
+
+  <p>
+    Seller: <strong style={{color: "#2563EB"}}>
+      {product.seller_name || "Seller"}
+    </strong>
+  </p>
+
+  <p style={{
+    color: product.status === "approved" ? "#15803D" : "#B45309",
+    fontWeight: "bold"
+  }}>
+    {product.status?.toUpperCase()}
+  </p>
+</div>
+
                 <button className="btn" onClick={() => setEditing(product)}>
                   Edit Product
                 </button>
