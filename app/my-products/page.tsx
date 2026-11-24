@@ -29,7 +29,8 @@ export default function MyProducts() {
   const [editing, setEditing] = useState<Product | null>(null);
 const [searchTerm, setSearchTerm] = useState("");
 const [statusFilter, setStatusFilter] = useState("all");
-  async function loadProducts() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+async function loadProducts() {
     if (!supabase) {
       setMessage("Database is not configured.");
       setLoading(false);
@@ -133,7 +134,9 @@ const filteredProducts = products.filter((p) => {
     color: "#111827",
     fontFamily: "Arial, sans-serif"
   }}>
-    <aside style={{
+    <aside
+  className={mobileMenuOpen ? "seller-sidebar mobile-open" : "seller-sidebar"}
+  style={{
       width: "260px",
       background: "white",
       borderRight: "1px solid #E2E8F0",
@@ -193,7 +196,35 @@ const filteredProducts = products.filter((p) => {
       flex: 1,
       minWidth: 0,
       padding: "30px"
-    }}>
+   }}>
+<style jsx>{`
+
+  .mobile-menu-button {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    .mobile-menu-button {
+      display: block;
+    }
+  }
+`}</style>
+
+<button
+  className="mobile-menu-button"
+  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+  style={{
+    padding: "10px 15px",
+    background: "#075CE5",
+    color: "white",
+    border: 0,
+    borderRadius: "8px",
+    fontSize: "22px",
+    marginBottom: "15px"
+  }}
+>
+  ☰ Menu
+</button>
       <div style={{
         display: "flex",
         justifyContent: "space-between",
