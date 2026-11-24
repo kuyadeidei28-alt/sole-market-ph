@@ -587,11 +587,8 @@ const filteredProducts = products.filter((p) => {
           ))}
         </div>
       </section>
-    </main>
+  </main>
   </div>
-</>
-
-
   );
-}
+}       
 
