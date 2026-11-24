@@ -65,27 +65,91 @@ export default function Home() {
       </div>
       {!supabase && <div className="notice">Connect your Supabase project by creating a .env.local file. See README.md for setup instructions.</div>}
       {loading ? <p>Loading listings...</p> : filtered.length === 0 ? <div className="panel"><h3>No approved listings yet</h3><p className="muted">When sellers submit products and an administrator approves them, they will appear here.</p></div> :
-        <div className="grid">{filtered.map(p => <article className="card" key={p.id}>
-          {p.image_url ? <img className="product-image" src={p.image_url} alt={p.title} /> : <div className="placeholder">👟</div>}
-          <div className="cardbody"><h3>{p.title}</h3><div className="muted">{p.brand || "Brand not specified"} · {p.size ? `Size ${p.size}` : "Size not specified"}</div>
-            <div className="price">₱{Number(p.price).toLocaleString("en-PH")}</div>
-            <p className="muted">{p.description || ""}</p>
-            <p className="muted">
-  Seller: <strong style={{ color: "#2563eb" }}>
-    {p.seller_name || "Marketplace seller"}
-  </strong>
-</p>{p.messenger_url && (
-  <a
-    className="btn"
-    href={p.messenger_url}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    Message Seller
-  </a>
+        <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+    gap: "20px",
+    marginTop: "20px"
+  }}
+>
+  {filtered.map((p) => (
+    <article
+      key={p.id}
+      style={{
+        background: "#FFFFFF",
+        border: "1px solid #E2E8F0",
+        borderRadius: "16px",
+        padding: "14px",
+        boxShadow: "0 4px 14px rgba(0,0,0,0.06)"
+      }}
+    >
+      {p.image_url && (
+        <img
+          src={p.image_url}
+          alt={p.title}
+          style={{
+            width: "100%",
+            height: "220px",
+            objectFit: "contain",
+            background: "#F8FAFC",
+            borderRadius: "12px"
+          }}
+        />
+      )}
+
+      <div style={{
+        marginTop: "12px",
+        color: "#15803D",
+        fontWeight: "bold",
+        fontSize: "12px"
+      }}>
+        ✓ APPROVED LISTING
+      </div>
+
+      <h3 style={{ fontSize: "18px", fontWeight: "bold" }}>
+        {p.title}
+      </h3>
+
+      <p style={{ color: "#64748B" }}>
+        {p.brand || "Brand not specified"}
+      </p>
+
+      <h2 style={{ color: "#075CE5", fontWeight: "bold" }}>
+        ₱{Number(p.price).toLocaleString("en-PH")}
+      </h2>
+
+      <p style={{ color: "#2563EB", fontWeight: "bold" }}>
+        Seller: {p.seller_name || "Marketplace seller"}
+      </p>
+
+      {p.description && <p>{p.description}</p>}
+
+      {p.messenger_url && (
+        <a
+          href={p.messenger_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "block",
+            textAlign: "center",
+            background: "#075CE5",
+            color: "white",
+            padding: "12px",
+            borderRadius: "10px",
+            fontWeight: "bold",
+            textDecoration: "none"
+          }}
+        >
+          Message Seller
+        </a>
+      )}
+    </article>
+  ))}
+</div>
 )}
-          </div>
-        </article>)}</div>}
+
+
     </main>
     <footer>SOLE MARKET PH · A marketplace connecting shoe buyers and sellers</footer>
   </>;
