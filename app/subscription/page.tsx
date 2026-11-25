@@ -5,19 +5,21 @@ import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { supabase } from "@/lib/supabase";
 
-type QRImage = {
-  name: string;
-  url: string;
-};
-
-const QR_BUCKET = "subscription-qr.";
-const QR_FILES = ["1000057693.jpg", "1000057695.png"];
+const QR_IMAGES = [
+  {
+    name: "1000057693.jpg",
+    url: "https://wkyvumtdlikosgytyydv.supabase.co/storage/v1/object/public/subscription-qr./1000057693.jpg",
+  },
+  {
+    name: "1000057695.png",
+    url: "https://wkyvumtdlikosgytyydv.supabase.co/storage/v1/object/public/subscription-qr./1000057695.png",
+  },
+];
 
 export default function SubscriptionPage() {
   const [loading, setLoading] = useState(true);
   const [enabled, setEnabled] = useState(false);
   const [price, setPrice] = useState(99);
-  const [qrImages, setQrImages] = useState<QRImage[]>([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -54,23 +56,9 @@ export default function SubscriptionPage() {
 
         setEnabled(Boolean(settings.is_enabled));
         setPrice(Number(settings.monthly_price ?? 99));
-
-        if (settings.is_enabled) {
-          const images = QR_FILES.map((name) => {
-            const { data } = client.storage
-              .from(QR_BUCKET)
-              .getPublicUrl(name);
-
-            return {
-              name,
-              url: data.publicUrl,
-            };
-          });
-
-          if (active) setQrImages(images);
-        }
       } catch (err) {
         console.error("SUBSCRIPTION ERROR:", err);
+
         if (active) {
           setError(
             err instanceof Error
@@ -112,6 +100,7 @@ export default function SubscriptionPage() {
 
         <section style={styles.card}>
           <span style={styles.tag}>MONTHLY PLAN</span>
+
           <h2 style={styles.price}>₱{price.toFixed(2)}</h2>
           <p style={styles.muted}>per month</p>
 
@@ -144,20 +133,23 @@ export default function SubscriptionPage() {
         {enabled && (
           <section style={styles.card}>
             <h2>Payment QR Codes</h2>
+
             <p style={styles.muted}>
               Scan the available QR code using your payment app.
             </p>
 
-            {qrImages.map((image) => (
-              <div key={image.name} style={styles.qrBox}>
-                <img
-                  src={image.url}
-                  alt={`Payment QR ${image.name}`}
-                  style={styles.qr}
-                />
-                <p style={styles.muted}>{image.name}</p>
-              </div>
-            ))}
+            <div style={styles.qrGrid}>
+              {QR_IMAGES.map((image) => (
+                <div key={image.name} style={styles.qrBox}>
+                  <img
+                    src={image.url}
+                    alt={`Payment QR ${image.name}`}
+                    style={styles.qr}
+                  />
+                  <p style={styles.muted}>{image.name}</p>
+                </div>
+              ))}
+            </div>
           </section>
         )}
 
@@ -235,18 +227,21 @@ const styles: Record<string, CSSProperties> = {
     borderRadius: "12px",
     marginBottom: "20px",
   },
+  qrGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "18px",
+    marginTop: "20px",
+  },
   qrBox: {
-    display: "inline-block",
-    verticalAlign: "top",
-    width: "min(100%, 280px)",
     border: "1px solid #e2e8f0",
     borderRadius: "12px",
     padding: "14px",
-    margin: "12px 12px 0 0",
     textAlign: "center",
   },
   qr: {
     width: "100%",
+    maxWidth: "260px",
     height: "auto",
     objectFit: "contain",
   },
