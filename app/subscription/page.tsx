@@ -66,17 +66,14 @@ export default function SubscriptionPage() {
   }
 }
 
-setQrImages(images);
-        }
-
-        setQrImages(images);
-      }
-
-      setLoading(false);
+      setQrImages(images);
     }
 
-    loadSubscription();
-  }, []);
+    setLoading(false);
+  }
+
+  loadSubscription();
+}, []);
 
   if (loading) {
     return (
