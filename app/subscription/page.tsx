@@ -33,12 +33,10 @@ export default function SubscriptionPage() {
       }
 
       try {
-        const {
-          data: { user },
-          error: userError,
-        } = await client.auth.getUser();
+        const { data: userData, error: userError } =
+          await client.auth.getUser();
 
-        if (userError || !user) {
+        if (userError || !userData.user) {
           window.location.href = "/login";
           return;
         }
@@ -50,9 +48,7 @@ export default function SubscriptionPage() {
             .eq("id", 1)
             .single();
 
-        if (settingsError) {
-          throw new Error("Unable to load subscription settings.");
-        }
+        if (settingsError) throw settingsError;
 
         if (!active) return;
 
@@ -71,11 +67,10 @@ export default function SubscriptionPage() {
             };
           });
 
-          setQrImages(images);
+          if (active) setQrImages(images);
         }
       } catch (err) {
-        console.error(err);
-
+        console.error("SUBSCRIPTION ERROR:", err);
         if (active) {
           setError(
             err instanceof Error
@@ -127,25 +122,23 @@ export default function SubscriptionPage() {
             </strong>
           </div>
 
-          <div style={styles.notice}>
-            {enabled ? (
-              <>
-                <h3>Subscription is now available.</h3>
-                <p>
-                  Please wait for the payment submission feature
-                  before sending money.
-                </p>
-              </>
-            ) : (
-              <>
-                <h3>Subscription is currently disabled.</h3>
-                <p>
-                  Sellers can continue using SOLE MARKET PH for free.
-                  No payment is required while subscription is OFF.
-                </p>
-              </>
-            )}
-          </div>
+          {!enabled ? (
+            <div style={styles.notice}>
+              <h3>Subscription is currently disabled.</h3>
+              <p>
+                Sellers can continue using SOLE MARKET PH for free.
+                No payment is required while subscription is OFF.
+              </p>
+            </div>
+          ) : (
+            <div style={styles.notice}>
+              <h3>Subscription is now available.</h3>
+              <p>
+                Please wait for the payment submission feature
+                before sending money.
+              </p>
+            </div>
+          )}
         </section>
 
         {enabled && (
@@ -155,18 +148,16 @@ export default function SubscriptionPage() {
               Scan the available QR code using your payment app.
             </p>
 
-            <div style={styles.qrGrid}>
-              {qrImages.map((image) => (
-                <div key={image.name} style={styles.qrBox}>
-                  <img
-                    src={image.url}
-                    alt={`Payment QR ${image.name}`}
-                    style={styles.qr}
-                  />
-                  <p style={styles.muted}>{image.name}</p>
-                </div>
-              ))}
-            </div>
+            {qrImages.map((image) => (
+              <div key={image.name} style={styles.qrBox}>
+                <img
+                  src={image.url}
+                  alt={`Payment QR ${image.name}`}
+                  style={styles.qr}
+                />
+                <p style={styles.muted}>{image.name}</p>
+              </div>
+            ))}
           </section>
         )}
 
@@ -178,7 +169,7 @@ export default function SubscriptionPage() {
   );
 }
 
-const styles: { [key: string]: CSSProperties } = {
+const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
     background: "#f3f6fb",
@@ -244,21 +235,18 @@ const styles: { [key: string]: CSSProperties } = {
     borderRadius: "12px",
     marginBottom: "20px",
   },
-  qrGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "18px",
-    marginTop: "20px",
-  },
   qrBox: {
+    display: "inline-block",
+    verticalAlign: "top",
+    width: "min(100%, 280px)",
     border: "1px solid #e2e8f0",
     borderRadius: "12px",
     padding: "14px",
+    margin: "12px 12px 0 0",
     textAlign: "center",
   },
   qr: {
     width: "100%",
-    maxWidth: "260px",
     height: "auto",
     objectFit: "contain",
   },
