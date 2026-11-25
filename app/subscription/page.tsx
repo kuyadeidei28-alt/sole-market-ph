@@ -89,7 +89,16 @@ export default function SubscriptionPage() {
       if (input) input.value = "";
       setMessage("Payment submitted! Please wait for admin verification.");
       await refresh();
-    } catch (e) { setError(e instanceof Error ? e.message : "Payment submission failed."); }
+   } catch (e: any) {
+  console.error("PAYMENT SUBMISSION ERROR:", e);
+  setError(
+    e?.message ||
+    e?.error_description ||
+    e?.details ||
+    JSON.stringify(e) ||
+    "Payment submission failed."
+  );
+}
     finally { setBusy(false); }
   }
 
