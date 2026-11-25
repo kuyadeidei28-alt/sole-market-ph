@@ -51,14 +51,22 @@ export default function SubscriptionPage() {
         const files = ["1000057693.jpg", "1000057695.png"];
         const images: QRImage[] = [];
 
-        for (const name of files) {
-          const { data, error: imageError } = await supabase.storage
-            .from("subscription-qr")
-            .createSignedUrl(name, 3600);
+    for (const name of files) {
+  const { data, error: imageError } = await supabase.storage
+    .from("subscription-qr")
+    .createSignedUrl(name, 3600);
 
-          if (!imageError && data?.signedUrl) {
-            images.push({ name, url: data.signedUrl });
-          }
+  if (!imageError && data?.signedUrl) {
+    images.push({ name, url: data.signedUrl });
+  } else {
+    console.error("QR IMAGE ERROR:", name, imageError);
+    setError(
+      `Unable to load ${name}: ${imageError?.message || "Unknown storage error"}`
+    );
+  }
+}
+
+setQrImages(images);
         }
 
         setQrImages(images);
