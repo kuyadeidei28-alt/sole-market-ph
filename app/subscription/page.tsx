@@ -1,6 +1,8 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { supabase } from "@/lib/supabase";
 
 type QRImage = {
@@ -8,72 +10,116 @@ type QRImage = {
   url: string;
 };
 
+const QR_BUCKET = "subscription-qr.";
+const QR_FILES = ["1000057693.jpg", "1000057695.png"];
+
 export default function SubscriptionPage() {
   const [loading, setLoading] = useState(true);
   const [enabled, setEnabled] = useState(false);
   const [price, setPrice] = useState(99);
   const [qrImages, setQrImages] = useState<QRImage[]>([]);
   const [error, setError] = useState("");
+  const [qrError, setQrError] = useState("");
 
   useEffect(() => {
+    let active = true;
+
     async function loadSubscription() {
-      if (!supabase) {
-        setError("Supabase connection unavailable.");
-        setLoading(false);
-        return;
-      }
+      try {
+        if (!supabase) {
+          throw new Error("Supabase connection unavailable.");
+        }
 
-      const { data: userData, error: userError } =
-        await supabase.auth.getUser();
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
 
-      if (userError || !userData.user) {
-        window.location.href = "/login";
-        return;
-      }
+        if (userError || !user) {
+          window.location.href = "/login";
+          return;
+        }
 
-      const { data: settings, error: settingsError } =
-        await supabase
+        const { data: settings, error: settingsError } = await supabase
           .from("subscription_settings")
           .select("is_enabled, monthly_price")
           .eq("id", 1)
           .single();
 
-      if (settingsError) {
-        setError("Unable to load subscription settings. Please check access policies.");
-        setLoading(false);
-        return;
+        if (settingsError) {
+          throw new Error(
+            "Unable to load subscription settings. Please check the database access policies."
+          );
+        }
+
+        if (!active) return;
+
+        setEnabled(Boolean(settings.is_enabled));
+        setPrice(Number(settings.monthly_price ?? 99));
+
+        if (settings.is_enabled) {
+          const results = await Promise.all(
+            QR_FILES.map(async (name) => {
+              const { data, error: imageError } = await supabase.storage
+                .from(QR_BUCKET)
+                .createSignedUrl(name, 3600);
+
+              if (imageError || !data?.signedUrl) {
+                console.error("QR IMAGE ERROR:", name, imageError);
+                return {
+                  name,
+                  url: "",
+                  error: imageError?.message || "Unable to create image URL.",
+                };
+              }
+
+              return {
+                name,
+                url: data.signedUrl,
+                error: "",
+              };
+            })
+          );
+
+          if (!active) return;
+
+          const availableImages = results
+            .filter((image) => image.url)
+            .map(({ name, url }) => ({ name, url }));
+
+          setQrImages(availableImages);
+
+          const failedImages = results.filter((image) => image.error);
+
+          if (failedImages.length > 0) {
+            setQrError(
+              `Unable to load: ${failedImages
+                .map((image) => image.name)
+                .join(", ")}. Please check the Storage bucket name and access policy.`
+            );
+          }
+        }
+      } catch (err) {
+        console.error("SUBSCRIPTION ERROR:", err);
+
+        if (active) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Something went wrong while loading the subscription page."
+          );
+        }
+      } finally {
+        if (active) setLoading(false);
       }
-
-      setEnabled(settings.is_enabled);
-      setPrice(Number(settings.monthly_price));
-
-      if (settings.is_enabled) {
-        const files = ["1000057693.jpg", "1000057695.png"];
-        const images: QRImage[] = [];
-
-    for (const name of files) {
-  const { data, error: imageError } = await supabase.storage
-  .from("subscription-qr")
-    .createSignedUrl(name, 3600);
-
-  if (!imageError && data?.signedUrl) {
-    images.push({ name, url: data.signedUrl });
-  } else {
-    console.error("QR IMAGE ERROR:", name, imageError);
-    setError(
-      `Unable to load ${name}: ${imageError?.message || "Unknown storage error"}`
-    );
-  }
-}
-
-      setQrImages(images);
     }
 
-    setLoading(false);
-  }
+    loadSubscription();
 
-  loadSubscription();
-}, []);
+    return () => {
+      active = false;
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -97,12 +143,17 @@ export default function SubscriptionPage() {
 
         <section style={styles.card}>
           <span style={styles.tag}>MONTHLY PLAN</span>
+
           <h2 style={styles.price}>₱{price.toFixed(2)}</h2>
           <p style={styles.muted}>per month</p>
 
           <div style={styles.status}>
             Subscription Status:{" "}
-            <strong style={{ color: enabled ? "#15803d" : "#dc2626" }}>
+            <strong
+              style={{
+                color: enabled ? "#15803d" : "#dc2626",
+              }}
+            >
               {enabled ? "ON" : "OFF"}
             </strong>
           </div>
@@ -119,8 +170,8 @@ export default function SubscriptionPage() {
             <div style={styles.notice}>
               <h3>Subscription is now available.</h3>
               <p>
-                Payment instructions will be shown below.
-                Please wait for the payment submission feature before sending money.
+                Payment instructions are shown below. Please wait for
+                the payment submission feature before sending money.
               </p>
             </div>
           )}
@@ -129,22 +180,30 @@ export default function SubscriptionPage() {
         {enabled && (
           <section style={styles.card}>
             <h2>Payment QR Codes</h2>
+
             <p style={styles.muted}>
               Scan the available QR code using your payment app.
             </p>
 
+            {qrError && <div style={styles.warning}>{qrError}</div>}
+
             {qrImages.length === 0 ? (
-              <p>QR images are not available. Please contact the administrator.</p>
+              <p>
+                QR images are currently unavailable. Please contact
+                the administrator.
+              </p>
             ) : (
               <div style={styles.qrGrid}>
                 {qrImages.map((image) => (
                   <div key={image.name} style={styles.qrBox}>
                     <img
                       src={image.url}
-                      alt="Subscription payment QR code"
+                      alt={`Payment QR code ${image.name}`}
                       style={styles.qr}
                     />
-                    <p style={styles.muted}>Payment QR</p>
+                    <p style={styles.muted}>
+                      {image.name.replace(/\.(jpg|png)$/i, "")}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -160,7 +219,7 @@ export default function SubscriptionPage() {
   );
 }
 
-const styles: { [key: string]: React.CSSProperties } = {
+const styles: { [key: string]: CSSProperties } = {
   page: {
     minHeight: "100vh",
     background: "#f3f6fb",
@@ -225,6 +284,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: "16px",
     borderRadius: "12px",
     marginBottom: "20px",
+  },
+  warning: {
+    background: "#fff7ed",
+    color: "#9a3412",
+    padding: "12px",
+    borderRadius: "10px",
+    marginTop: "16px",
   },
   qrGrid: {
     display: "grid",
