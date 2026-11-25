@@ -93,13 +93,19 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            <div className="card">
-              <h2>Subscription</h2>
-              <p className="muted">
-                Seller subscription plans will appear here.
-              </p>
-              <p>₱99 / month</p>
-              <p>Yearly plan coming soon.</p>
+            
+<div className="card">
+  <h2>Subscription</h2>
+  <p className="muted">
+    Get full access to SOLE MARKET PH.
+  </p>
+  <h3>₱99 / month</h3>
+  <Link className="btn" href="/subscription">
+    SUBSCRIBE NOW
+  </Link>
+  <p>Yearly plan coming soon.</p>
+</div>
+
             </div>
           </div>
         </section>
