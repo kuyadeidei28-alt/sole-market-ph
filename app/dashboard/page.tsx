@@ -94,6 +94,7 @@ export default function Dashboard() {
             </div>
 
             
+
 <div className="card">
   <h2>Subscription</h2>
   <p className="muted">
@@ -106,11 +107,10 @@ export default function Dashboard() {
   <p>Yearly plan coming soon.</p>
 </div>
 
-            </div>
-          </div>
-        </section>
-      </main>
-    </>
-  );
+</div>
+</section>
+</main>
+</>
+);
 }
 
