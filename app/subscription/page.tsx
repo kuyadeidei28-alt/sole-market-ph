@@ -161,11 +161,12 @@ export default function SubscriptionPage() {
 
 const styles: Record<string, CSSProperties> = {
   page: {
-    minHeight: "100vh",
-    background: "#f3f6fb",
-    padding: "32px 16px",
-    color: "#172033",
-  },
+  fontFamily: "Inter, Arial, sans-serif",
+  minHeight: "100vh",
+  background: "#f3f6fb",
+  padding: "32px 16px",
+  color: "#172033",
+},
   container: {
     maxWidth: "760px",
     margin: "0 auto",
