@@ -238,12 +238,11 @@ const styles: Record<string, CSSProperties> = {
     padding: "14px",
     textAlign: "center",
   },
-  qr: {
-    width: "100%",
-    maxWidth: "260px",
-    height: "auto",
-    objectFit: "contain",
-  },
+ qr: {
+  width: "100%",
+  height: "260px",
+  objectFit: "contain",
+},
   footer: {
     textAlign: "center",
     color: "#94a3b8",
