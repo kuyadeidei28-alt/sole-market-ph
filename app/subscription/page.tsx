@@ -25,22 +25,26 @@ export default function SubscriptionPage() {
     let active = true;
 
     async function loadSubscription() {
-      try {
-        if (!supabase) {
-          throw new Error("Supabase connection unavailable.");
-        }
+      const client = supabase;
 
+      if (!client) {
+        setError("Supabase connection unavailable.");
+        setLoading(false);
+        return;
+      }
+
+      try {
         const {
           data: { user },
           error: userError,
-        } = await supabase.auth.getUser();
+        } = await client.auth.getUser();
 
         if (userError || !user) {
           window.location.href = "/login";
           return;
         }
 
-        const { data: settings, error: settingsError } = await supabase
+        const { data: settings, error: settingsError } = await client
           .from("subscription_settings")
           .select("is_enabled, monthly_price")
           .eq("id", 1)
@@ -48,7 +52,7 @@ export default function SubscriptionPage() {
 
         if (settingsError) {
           throw new Error(
-            "Unable to load subscription settings. Please check the database access policies."
+            "Unable to load subscription settings. Please check database access policies."
           );
         }
 
@@ -60,16 +64,18 @@ export default function SubscriptionPage() {
         if (settings.is_enabled) {
           const results = await Promise.all(
             QR_FILES.map(async (name) => {
-              const { data, error: imageError } = await supabase.storage
+              const { data, error: imageError } = await client.storage
                 .from(QR_BUCKET)
                 .createSignedUrl(name, 3600);
 
               if (imageError || !data?.signedUrl) {
                 console.error("QR IMAGE ERROR:", name, imageError);
+
                 return {
                   name,
                   url: "",
-                  error: imageError?.message || "Unable to create image URL.",
+                  error:
+                    imageError?.message || "Unable to create image URL.",
                 };
               }
 
@@ -83,19 +89,20 @@ export default function SubscriptionPage() {
 
           if (!active) return;
 
-          const availableImages = results
-            .filter((image) => image.url)
-            .map(({ name, url }) => ({ name, url }));
-
-          setQrImages(availableImages);
+          setQrImages(
+            results
+              .filter((image) => image.url)
+              .map((image) => ({
+                name: image.name,
+                url: image.url,
+              }))
+          );
 
           const failedImages = results.filter((image) => image.error);
 
           if (failedImages.length > 0) {
             setQrError(
-              `Unable to load: ${failedImages
-                .map((image) => image.name)
-                .join(", ")}. Please check the Storage bucket name and access policy.`
+              "Some QR images could not be loaded. Please check the Storage bucket and its access policy."
             );
           }
         }
@@ -106,11 +113,13 @@ export default function SubscriptionPage() {
           setError(
             err instanceof Error
               ? err.message
-              : "Something went wrong while loading the subscription page."
+              : "Unable to load subscription page."
           );
         }
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
@@ -170,8 +179,9 @@ export default function SubscriptionPage() {
             <div style={styles.notice}>
               <h3>Subscription is now available.</h3>
               <p>
-                Payment instructions are shown below. Please wait for
-                the payment submission feature before sending money.
+                Payment instructions are shown below.
+                Please wait for the payment submission feature
+                before sending money.
               </p>
             </div>
           )}
@@ -185,12 +195,14 @@ export default function SubscriptionPage() {
               Scan the available QR code using your payment app.
             </p>
 
-            {qrError && <div style={styles.warning}>{qrError}</div>}
+            {qrError && (
+              <div style={styles.warning}>{qrError}</div>
+            )}
 
             {qrImages.length === 0 ? (
               <p>
-                QR images are currently unavailable. Please contact
-                the administrator.
+                QR images are currently unavailable.
+                Please contact the administrator.
               </p>
             ) : (
               <div style={styles.qrGrid}>
@@ -202,7 +214,7 @@ export default function SubscriptionPage() {
                       style={styles.qr}
                     />
                     <p style={styles.muted}>
-                      {image.name.replace(/\.(jpg|png)$/i, "")}
+                      {image.name}
                     </p>
                   </div>
                 ))}
