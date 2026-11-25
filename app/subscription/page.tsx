@@ -53,7 +53,7 @@ export default function SubscriptionPage() {
 
     for (const name of files) {
   const { data, error: imageError } = await supabase.storage
-    .from("subscription-qr")
+  .from("subscription-qr")
     .createSignedUrl(name, 3600);
 
   if (!imageError && data?.signedUrl) {
