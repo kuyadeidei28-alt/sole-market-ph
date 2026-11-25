@@ -18,7 +18,6 @@ type Payment = {
   proof_url: string | null;
   rejection_reason: string | null;
   created_at: string;
-  reviewed_at: string | null;
 };
 
 type Subscription = {
@@ -37,11 +36,10 @@ export default function AdminDashboard() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [enabled, setEnabled] = useState(false);
   const [monthlyPrice, setMonthlyPrice] = useState(99);
-
   const [payments, setPayments] = useState<Payment[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [proofUrls, setProofUrls] = useState<Record<string, string>>({});
-
+  const [subscriptionWarning, setSubscriptionWarning] = useState("");
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -57,11 +55,12 @@ export default function AdminDashboard() {
 
     try {
       setError("");
+      setSubscriptionWarning("");
 
-      const { data: userData, error: userError } =
+      const { data: auth, error: authError } =
         await client.auth.getUser();
 
-      if (userError || !userData.user) {
+      if (authError || !auth.user) {
         router.replace("/login");
         return;
       }
@@ -71,7 +70,6 @@ export default function AdminDashboard() {
 
       if (adminError || adminResult !== true) {
         setIsAdmin(false);
-        setLoading(false);
         return;
       }
 
@@ -80,64 +78,75 @@ export default function AdminDashboard() {
       const [
         { data: settings, error: settingsError },
         { data: paymentRows, error: paymentError },
-        { data: subscriptionRows, error: subscriptionError },
       ] = await Promise.all([
         client
           .from("subscription_settings")
-          .select("is_enabled, monthly_price")
+          .select("is_enabled,monthly_price")
           .eq("id", 1)
           .single(),
 
         client
           .from("subscription_payments")
           .select(
-            "id,seller_id,amount,payment_method,reference_number,status,proof_url,rejection_reason,created_at,reviewed_at"
+            "id,seller_id,amount,payment_method,reference_number,status,proof_url,rejection_reason,created_at"
           )
-          .order("created_at", { ascending: false }),
-
-        client
-          .from("seller_subscriptions")
-          .select("id,seller_id,status,started_at,expires_at,created_at")
           .order("created_at", { ascending: false }),
       ]);
 
       if (settingsError) throw settingsError;
       if (paymentError) throw paymentError;
-      if (subscriptionError) throw subscriptionError;
 
       setEnabled(Boolean(settings.is_enabled));
       setMonthlyPrice(Number(settings.monthly_price ?? 99));
 
       const loadedPayments = (paymentRows || []) as Payment[];
       setPayments(loadedPayments);
-      setSubscriptions((subscriptionRows || []) as Subscription[]);
 
-      // Generate temporary secure links for private payment receipts.
-      const signedLinks: Record<string, string> = {};
+      // Load subscriptions separately so a subscription-table
+      // permission error does not stop payment management.
+      const { data: subscriptionRows, error: subscriptionError } =
+        await client
+          .from("seller_subscriptions")
+          .select("id,seller_id,status,started_at,expires_at,created_at")
+          .order("created_at", { ascending: false });
+
+      if (subscriptionError) {
+        setSubscriptions([]);
+        setSubscriptionWarning(
+          "Seller subscription list is unavailable: " +
+            subscriptionError.message
+        );
+      } else {
+        setSubscriptions((subscriptionRows || []) as Subscription[]);
+      }
+
+      const links: Record<string, string> = {};
 
       await Promise.all(
         loadedPayments.map(async (payment) => {
           if (!payment.proof_url) return;
 
           if (payment.proof_url.startsWith("http")) {
-            signedLinks[payment.id] = payment.proof_url;
+            links[payment.id] = payment.proof_url;
             return;
           }
 
-          const { data, error: signedError } = await client.storage
+          const { data } = await client.storage
             .from(RECEIPT_BUCKET)
             .createSignedUrl(payment.proof_url, 600);
 
-          if (!signedError && data?.signedUrl) {
-            signedLinks[payment.id] = data.signedUrl;
+          if (data?.signedUrl) {
+            links[payment.id] = data.signedUrl;
           }
         })
       );
 
-      setProofUrls(signedLinks);
+      setProofUrls(links);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Unable to load admin dashboard."
+        e instanceof Error
+          ? e.message
+          : "Unable to load admin dashboard."
       );
     } finally {
       setLoading(false);
@@ -152,20 +161,20 @@ export default function AdminDashboard() {
     const client = supabase;
     if (!client) return;
 
-    const confirmed = window.confirm(
-      enabled
-        ? "Turn OFF seller subscriptions?"
-        : "Turn ON seller subscriptions?"
-    );
-
-    if (!confirmed) return;
+    if (
+      !window.confirm(
+        enabled
+          ? "Turn OFF seller subscriptions?"
+          : "Turn ON seller subscriptions?"
+      )
+    ) return;
 
     setBusy("settings");
-    setMessage("");
     setError("");
+    setMessage("");
 
     try {
-      const { error: updateError } = await client
+      const { error } = await client
         .from("subscription_settings")
         .update({
           is_enabled: !enabled,
@@ -173,14 +182,12 @@ export default function AdminDashboard() {
         })
         .eq("id", 1);
 
-      if (updateError) throw updateError;
+      if (error) throw error;
 
       setEnabled(!enabled);
       setMessage("Subscription setting updated successfully.");
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Unable to update subscription setting."
-      );
+      setError(e instanceof Error ? e.message : "Update failed.");
     } finally {
       setBusy("");
     }
@@ -190,37 +197,33 @@ export default function AdminDashboard() {
     const client = supabase;
     if (!client || !enabled) return;
 
-    const confirmed = window.confirm(
-      `Approve this ₱${Number(payment.amount).toFixed(
-        2
-      )} payment and activate the seller's subscription for 30 days?`
-    );
-
-    if (!confirmed) return;
+    if (
+      !window.confirm(
+        `Approve ₱${Number(payment.amount).toFixed(
+          2
+        )} and activate the seller subscription for 30 days?`
+      )
+    ) return;
 
     setBusy(payment.id);
-    setMessage("");
     setError("");
+    setMessage("");
 
     try {
-      const { error: approvalError } = await client.rpc(
+      const { error } = await client.rpc(
         "admin_approve_subscription_payment",
-        {
-          p_payment_id: payment.id,
-        }
+        { p_payment_id: payment.id }
       );
 
-      if (approvalError) throw approvalError;
+      if (error) throw error;
 
       setMessage(
-        "Payment approved successfully. Seller subscription activated for 30 days."
+        "Payment approved. Subscription activation was processed."
       );
 
       await loadData();
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Unable to approve payment."
-      );
+      setError(e instanceof Error ? e.message : "Approval failed.");
     } finally {
       setBusy("");
     }
@@ -230,27 +233,22 @@ export default function AdminDashboard() {
     const client = supabase;
     if (!client) return;
 
-    const reason = window.prompt(
-      "Enter the reason for rejecting this payment:"
-    );
-
+    const reason = window.prompt("Reason for rejecting this payment:");
     if (reason === null) return;
 
     if (!reason.trim()) {
-      setError("Please provide a rejection reason.");
+      setError("Please enter a rejection reason.");
       return;
     }
 
-    const confirmed = window.confirm("Reject this payment submission?");
-
-    if (!confirmed) return;
+    if (!window.confirm("Reject this payment?")) return;
 
     setBusy(payment.id);
-    setMessage("");
     setError("");
+    setMessage("");
 
     try {
-      const { error: rejectionError } = await client.rpc(
+      const { error } = await client.rpc(
         "admin_reject_subscription_payment",
         {
           p_payment_id: payment.id,
@@ -258,26 +256,19 @@ export default function AdminDashboard() {
         }
       );
 
-      if (rejectionError) throw rejectionError;
+      if (error) throw error;
 
       setMessage("Payment rejected successfully.");
-
       await loadData();
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Unable to reject payment."
-      );
+      setError(e instanceof Error ? e.message : "Rejection failed.");
     } finally {
       setBusy("");
     }
   }
 
   if (loading) {
-    return (
-      <main style={styles.page}>
-        Loading admin dashboard...
-      </main>
-    );
+    return <main style={styles.page}>Loading admin dashboard...</main>;
   }
 
   if (!isAdmin) {
@@ -285,22 +276,20 @@ export default function AdminDashboard() {
       <main style={styles.page}>
         <div style={styles.container}>
           <h1>Access Denied</h1>
-          <p>This page is for the SOLE MARKET PH admin only.</p>
+          <p>This page is for SOLE MARKET PH admin only.</p>
           <Link href="/dashboard">Back to Dashboard</Link>
         </div>
       </main>
     );
   }
 
-  const pendingPayments = payments.filter(
-    (payment) => payment.status === "pending"
-  );
+  const pending = payments.filter((p) => p.status === "pending");
 
-  const activeSubscriptions = subscriptions.filter(
-    (subscription) =>
-      subscription.status === "active" &&
-      subscription.expires_at &&
-      new Date(subscription.expires_at) > new Date()
+  const active = subscriptions.filter(
+    (s) =>
+      s.status === "active" &&
+      s.expires_at &&
+      new Date(s.expires_at) > new Date()
   );
 
   return (
@@ -309,50 +298,48 @@ export default function AdminDashboard() {
         <header style={styles.header}>
           <div>
             <h1 style={styles.title}>SOLE MARKET PH</h1>
-            <p style={styles.subtitle}>Admin Dashboard</p>
+            <p style={styles.muted}>Admin Dashboard</p>
           </div>
 
-          <div style={styles.headerLinks}>
+          <div style={styles.actions}>
             <button
+              style={styles.refresh}
+              disabled={busy !== ""}
               onClick={() => {
                 setLoading(true);
                 loadData();
               }}
-              style={styles.refreshButton}
-              disabled={busy !== ""}
             >
               Refresh
             </button>
-
             <Link href="/dashboard">Seller Dashboard</Link>
           </div>
         </header>
 
         {error && <div style={styles.error}>{error}</div>}
         {message && <div style={styles.success}>{message}</div>}
+        {subscriptionWarning && (
+          <div style={styles.warning}>{subscriptionWarning}</div>
+        )}
 
         <section style={styles.card}>
           <h2>Subscription Control</h2>
-
           <p>
-            Monthly Plan:{" "}
-            <strong>₱{monthlyPrice.toFixed(2)} / month</strong>
+            Monthly Plan: <strong>₱{monthlyPrice.toFixed(2)} / month</strong>
           </p>
-
           <p>
             Status:{" "}
-            <strong style={{ color: enabled ? "#15803d" : "#dc2626" }}>
+            <strong style={{ color: enabled ? "green" : "red" }}>
               {enabled ? "ON" : "OFF"}
             </strong>
           </p>
-
           <button
-            onClick={toggleSubscription}
-            disabled={busy === "settings"}
             style={{
               ...styles.button,
               background: enabled ? "#dc2626" : "#1677e8",
             }}
+            disabled={busy === "settings"}
+            onClick={toggleSubscription}
           >
             {busy === "settings"
               ? "Updating..."
@@ -360,26 +347,18 @@ export default function AdminDashboard() {
                 ? "Turn OFF Subscription"
                 : "Turn ON Subscription"}
           </button>
-
-          {!enabled && (
-            <p style={styles.muted}>
-              Subscription is currently disabled. Sellers remain free.
-            </p>
-          )}
         </section>
 
-        <section style={styles.statsGrid}>
-          <div style={styles.statCard}>
+        <section style={styles.stats}>
+          <div style={styles.stat}>
             <p>Pending Payments</p>
-            <h2>{pendingPayments.length}</h2>
+            <h2>{pending.length}</h2>
           </div>
-
-          <div style={styles.statCard}>
+          <div style={styles.stat}>
             <p>Active Subscriptions</p>
-            <h2>{activeSubscriptions.length}</h2>
+            <h2>{active.length}</h2>
           </div>
-
-          <div style={styles.statCard}>
+          <div style={styles.stat}>
             <p>Total Payments</p>
             <h2>{payments.length}</h2>
           </div>
@@ -391,88 +370,64 @@ export default function AdminDashboard() {
           {payments.length === 0 ? (
             <p style={styles.muted}>No payment submissions yet.</p>
           ) : (
-            payments.map((payment) => (
-              <div key={payment.id} style={styles.historyItem}>
-                <p>
-                  <strong>Seller ID:</strong> {payment.seller_id}
-                </p>
-
-                <p>
-                  <strong>Method:</strong> {payment.payment_method}
-                </p>
-
-                <p>
-                  <strong>Reference Number:</strong>{" "}
-                  {payment.reference_number || "—"}
-                </p>
-
-                <p>
-                  <strong>Amount:</strong>{" "}
-                  ₱{Number(payment.amount).toFixed(2)}
-                </p>
-
+            payments.map((p) => (
+              <div key={p.id} style={styles.item}>
+                <p><strong>Seller ID:</strong> {p.seller_id}</p>
+                <p><strong>Method:</strong> {p.payment_method}</p>
+                <p><strong>Reference:</strong> {p.reference_number || "—"}</p>
+                <p><strong>Amount:</strong> ₱{Number(p.amount).toFixed(2)}</p>
                 <p>
                   <strong>Status:</strong>{" "}
-                  <span
+                  <strong
                     style={{
                       color:
-                        payment.status === "approved"
-                          ? "#15803d"
-                          : payment.status === "rejected"
-                            ? "#dc2626"
+                        p.status === "approved"
+                          ? "green"
+                          : p.status === "rejected"
+                            ? "red"
                             : "#b45309",
-                      fontWeight: 700,
                     }}
                   >
-                    {payment.status.toUpperCase()}
-                  </span>
+                    {p.status.toUpperCase()}
+                  </strong>
                 </p>
+                <p><strong>Date:</strong> {new Date(p.created_at).toLocaleString()}</p>
 
-                <p>
-                  <strong>Date:</strong>{" "}
-                  {new Date(payment.created_at).toLocaleString()}
-                </p>
-
-                {payment.proof_url && (
+                {p.proof_url && (
                   <p>
-                    {proofUrls[payment.id] ? (
+                    {proofUrls[p.id] ? (
                       <a
-                        href={proofUrls[payment.id]}
+                        href={proofUrls[p.id]}
                         target="_blank"
                         rel="noreferrer"
-                        style={styles.proofLink}
                       >
                         View Payment Proof
                       </a>
                     ) : (
-                      <span style={styles.muted}>
-                        Payment proof link unavailable.
-                      </span>
+                      <span style={styles.muted}>Proof link unavailable.</span>
                     )}
                   </p>
                 )}
 
-                {payment.rejection_reason && (
-                  <p style={styles.errorText}>
-                    <strong>Rejection Reason:</strong>{" "}
-                    {payment.rejection_reason}
+                {p.rejection_reason && (
+                  <p style={{ color: "red" }}>
+                    Rejection Reason: {p.rejection_reason}
                   </p>
                 )}
 
-                {payment.status === "pending" && (
-                  <div style={styles.actionRow}>
+                {p.status === "pending" && (
+                  <div style={styles.actions}>
                     <button
-                      onClick={() => approvePayment(payment)}
+                      style={styles.approve}
                       disabled={!enabled || busy !== ""}
-                      style={styles.approveButton}
+                      onClick={() => approvePayment(p)}
                     >
-                      {busy === payment.id ? "Processing..." : "Approve"}
+                      {busy === p.id ? "Processing..." : "Approve"}
                     </button>
-
                     <button
-                      onClick={() => rejectPayment(payment)}
+                      style={styles.reject}
                       disabled={busy !== ""}
-                      style={styles.rejectButton}
+                      onClick={() => rejectPayment(p)}
                     >
                       Reject
                     </button>
@@ -487,39 +442,30 @@ export default function AdminDashboard() {
           <h2>Seller Subscriptions</h2>
 
           {subscriptions.length === 0 ? (
-            <p style={styles.muted}>No subscriptions yet.</p>
+            <p style={styles.muted}>No subscriptions available yet.</p>
           ) : (
-            subscriptions.map((subscription) => (
-              <div key={subscription.id} style={styles.historyItem}>
-                <p>
-                  <strong>Seller ID:</strong> {subscription.seller_id}
-                </p>
-
-                <p>
-                  <strong>Status:</strong> {subscription.status.toUpperCase()}
-                </p>
-
+            subscriptions.map((s) => (
+              <div key={s.id} style={styles.item}>
+                <p><strong>Seller ID:</strong> {s.seller_id}</p>
+                <p><strong>Status:</strong> {s.status.toUpperCase()}</p>
                 <p>
                   <strong>Started:</strong>{" "}
-                  {subscription.started_at
-                    ? new Date(subscription.started_at).toLocaleString()
+                  {s.started_at
+                    ? new Date(s.started_at).toLocaleString()
                     : "—"}
                 </p>
-
                 <p>
                   <strong>Expires:</strong>{" "}
-                  {subscription.expires_at
-                    ? new Date(subscription.expires_at).toLocaleString()
-                    : "Not set"}
+                  {s.expires_at
+                    ? new Date(s.expires_at).toLocaleString()
+                    : "—"}
                 </p>
               </div>
             ))
           )}
         </section>
 
-        <p style={styles.footer}>
-          SOLE MARKET PH · Admin Dashboard
-        </p>
+        <p style={styles.footer}>SOLE MARKET PH · Admin Dashboard</p>
       </div>
     </main>
   );
@@ -533,10 +479,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#172033",
     fontFamily: "Inter, Arial, sans-serif",
   },
-  container: {
-    maxWidth: 1050,
-    margin: "0 auto",
-  },
+  container: { maxWidth: 1050, margin: "0 auto" },
   header: {
     display: "flex",
     justifyContent: "space-between",
@@ -544,21 +487,9 @@ const styles: Record<string, React.CSSProperties> = {
     flexWrap: "wrap",
     gap: 12,
   },
-  headerLinks: {
-    display: "flex",
-    alignItems: "center",
-    gap: 16,
-    flexWrap: "wrap",
-  },
-  title: {
-    margin: 0,
-    fontSize: 28,
-    fontWeight: 800,
-  },
-  subtitle: {
-    color: "#64748b",
-    marginTop: 8,
-  },
+  title: { margin: 0, fontSize: 28, fontWeight: 800 },
+  muted: { color: "#64748b" },
+  actions: { display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" },
   card: {
     background: "white",
     padding: 20,
@@ -566,17 +497,13 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 20,
     boxShadow: "0 2px 10px #0000000a",
   },
-  statsGrid: {
+  stats: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
     gap: 14,
     marginTop: 20,
   },
-  statCard: {
-    background: "white",
-    padding: 20,
-    borderRadius: 12,
-  },
+  stat: { background: "white", padding: 20, borderRadius: 12 },
   button: {
     padding: "12px 20px",
     border: 0,
@@ -585,19 +512,24 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: "bold",
     cursor: "pointer",
   },
-  refreshButton: {
+  refresh: {
     padding: "9px 14px",
     border: "1px solid #cbd5e1",
     borderRadius: 8,
     background: "white",
     cursor: "pointer",
   },
-  muted: {
-    color: "#64748b",
-  },
   error: {
     background: "#fee2e2",
     color: "#991b1b",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 16,
+    overflowWrap: "anywhere",
+  },
+  warning: {
+    background: "#fef3c7",
+    color: "#92400e",
     padding: 12,
     borderRadius: 8,
     marginTop: 16,
@@ -609,24 +541,13 @@ const styles: Record<string, React.CSSProperties> = {
     padding: 12,
     borderRadius: 8,
     marginTop: 16,
-    overflowWrap: "anywhere",
   },
-  errorText: {
-    color: "#b91c1c",
-    overflowWrap: "anywhere",
-  },
-  historyItem: {
+  item: {
     borderTop: "1px solid #e5e7eb",
     padding: "16px 0",
     overflowWrap: "anywhere",
   },
-  actionRow: {
-    display: "flex",
-    gap: 10,
-    flexWrap: "wrap",
-    marginTop: 12,
-  },
-  approveButton: {
+  approve: {
     padding: "10px 16px",
     background: "#16834a",
     color: "white",
@@ -635,7 +556,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     cursor: "pointer",
   },
-  rejectButton: {
+  reject: {
     padding: "10px 16px",
     background: "#dc2626",
     color: "white",
@@ -643,11 +564,6 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 7,
     fontWeight: 700,
     cursor: "pointer",
-  },
-  proofLink: {
-    color: "#2563eb",
-    fontWeight: 700,
-    textDecoration: "underline",
   },
   footer: {
     textAlign: "center",
