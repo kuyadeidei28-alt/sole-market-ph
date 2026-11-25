@@ -19,7 +19,6 @@ export default function SubscriptionPage() {
   const [price, setPrice] = useState(99);
   const [qrImages, setQrImages] = useState<QRImage[]>([]);
   const [error, setError] = useState("");
-  const [qrError, setQrError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -44,16 +43,15 @@ export default function SubscriptionPage() {
           return;
         }
 
-        const { data: settings, error: settingsError } = await client
-          .from("subscription_settings")
-          .select("is_enabled, monthly_price")
-          .eq("id", 1)
-          .single();
+        const { data: settings, error: settingsError } =
+          await client
+            .from("subscription_settings")
+            .select("is_enabled, monthly_price")
+            .eq("id", 1)
+            .single();
 
         if (settingsError) {
-          throw new Error(
-            "Unable to load subscription settings. Please check database access policies."
-          );
+          throw new Error("Unable to load subscription settings.");
         }
 
         if (!active) return;
@@ -62,64 +60,31 @@ export default function SubscriptionPage() {
         setPrice(Number(settings.monthly_price ?? 99));
 
         if (settings.is_enabled) {
-          const results = await Promise.all(
-            QR_FILES.map(async (name) => {
-              const { data, error: imageError } = await client.storage
-                .from(QR_BUCKET)
-                .createSignedUrl(name, 3600);
+          const images = QR_FILES.map((name) => {
+            const { data } = client.storage
+              .from(QR_BUCKET)
+              .getPublicUrl(name);
 
-              if (imageError || !data?.signedUrl) {
-                console.error("QR IMAGE ERROR:", name, imageError);
+            return {
+              name,
+              url: data.publicUrl,
+            };
+          });
 
-                return {
-                  name,
-                  url: "",
-                  error:
-                    imageError?.message || "Unable to create image URL.",
-                };
-              }
-
-              return {
-                name,
-                url: data.signedUrl,
-                error: "",
-              };
-            })
-          );
-
-          if (!active) return;
-
-          setQrImages(
-            results
-              .filter((image) => image.url)
-              .map((image) => ({
-                name: image.name,
-                url: image.url,
-              }))
-          );
-
-          const failedImages = results.filter((image) => image.error);
-
-          if (failedImages.length > 0) {
-            setQrError(
-              "Some QR images could not be loaded. Please check the Storage bucket and its access policy."
-            );
-          }
+          setQrImages(images);
         }
       } catch (err) {
-        console.error("SUBSCRIPTION ERROR:", err);
+        console.error(err);
 
         if (active) {
           setError(
             err instanceof Error
               ? err.message
-              : "Unable to load subscription page."
+              : "Unable to load subscription."
           );
         }
       } finally {
-        if (active) {
-          setLoading(false);
-        }
+        if (active) setLoading(false);
       }
     }
 
@@ -152,74 +117,56 @@ export default function SubscriptionPage() {
 
         <section style={styles.card}>
           <span style={styles.tag}>MONTHLY PLAN</span>
-
           <h2 style={styles.price}>₱{price.toFixed(2)}</h2>
           <p style={styles.muted}>per month</p>
 
           <div style={styles.status}>
             Subscription Status:{" "}
-            <strong
-              style={{
-                color: enabled ? "#15803d" : "#dc2626",
-              }}
-            >
+            <strong style={{ color: enabled ? "#15803d" : "#dc2626" }}>
               {enabled ? "ON" : "OFF"}
             </strong>
           </div>
 
-          {!enabled ? (
-            <div style={styles.notice}>
-              <h3>Subscription is currently disabled.</h3>
-              <p>
-                Sellers can continue using SOLE MARKET PH for free.
-                No payment is required while subscription is OFF.
-              </p>
-            </div>
-          ) : (
-            <div style={styles.notice}>
-              <h3>Subscription is now available.</h3>
-              <p>
-                Payment instructions are shown below.
-                Please wait for the payment submission feature
-                before sending money.
-              </p>
-            </div>
-          )}
+          <div style={styles.notice}>
+            {enabled ? (
+              <>
+                <h3>Subscription is now available.</h3>
+                <p>
+                  Please wait for the payment submission feature
+                  before sending money.
+                </p>
+              </>
+            ) : (
+              <>
+                <h3>Subscription is currently disabled.</h3>
+                <p>
+                  Sellers can continue using SOLE MARKET PH for free.
+                  No payment is required while subscription is OFF.
+                </p>
+              </>
+            )}
+          </div>
         </section>
 
         {enabled && (
           <section style={styles.card}>
             <h2>Payment QR Codes</h2>
-
             <p style={styles.muted}>
               Scan the available QR code using your payment app.
             </p>
 
-            {qrError && (
-              <div style={styles.warning}>{qrError}</div>
-            )}
-
-            {qrImages.length === 0 ? (
-              <p>
-                QR images are currently unavailable.
-                Please contact the administrator.
-              </p>
-            ) : (
-              <div style={styles.qrGrid}>
-                {qrImages.map((image) => (
-                  <div key={image.name} style={styles.qrBox}>
-                    <img
-                      src={image.url}
-                      alt={`Payment QR code ${image.name}`}
-                      style={styles.qr}
-                    />
-                    <p style={styles.muted}>
-                      {image.name}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div style={styles.qrGrid}>
+              {qrImages.map((image) => (
+                <div key={image.name} style={styles.qrBox}>
+                  <img
+                    src={image.url}
+                    alt={`Payment QR ${image.name}`}
+                    style={styles.qr}
+                  />
+                  <p style={styles.muted}>{image.name}</p>
+                </div>
+              ))}
+            </div>
           </section>
         )}
 
@@ -296,13 +243,6 @@ const styles: { [key: string]: CSSProperties } = {
     padding: "16px",
     borderRadius: "12px",
     marginBottom: "20px",
-  },
-  warning: {
-    background: "#fff7ed",
-    color: "#9a3412",
-    padding: "12px",
-    borderRadius: "10px",
-    marginTop: "16px",
   },
   qrGrid: {
     display: "grid",
