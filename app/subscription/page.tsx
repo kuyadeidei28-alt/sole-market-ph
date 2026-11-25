@@ -8,11 +8,11 @@ import { supabase } from "@/lib/supabase";
 const QR_IMAGES = [
   {
     name: "1000057693.jpg",
-    url: "https://wkyvumtdlikosgytyydv.supabase.co/storage/v1/object/public/subscription-qr./1000057693.jpg",
+    url: "https://wkyvumtdlikosgytyydv.supabase.co/storage/v1/object/public/subsciption-qr./1000057693.jpg",
   },
   {
     name: "1000057695.png",
-    url: "https://wkyvumtdlikosgytyydv.supabase.co/storage/v1/object/public/subscription-qr./1000057695.png",
+    url: "https://wkyvumtdlikosgytyydv.supabase.co/storage/v1/object/public/subsciption-qr./1000057695.png",
   },
 ];
 
@@ -100,7 +100,6 @@ export default function SubscriptionPage() {
 
         <section style={styles.card}>
           <span style={styles.tag}>MONTHLY PLAN</span>
-
           <h2 style={styles.price}>₱{price.toFixed(2)}</h2>
           <p style={styles.muted}>per month</p>
 
@@ -133,7 +132,6 @@ export default function SubscriptionPage() {
         {enabled && (
           <section style={styles.card}>
             <h2>Payment QR Codes</h2>
-
             <p style={styles.muted}>
               Scan the available QR code using your payment app.
             </p>
