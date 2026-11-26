@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -112,7 +113,9 @@ export default function MyProducts() {
         size: editing.size,
         price: editing.price,
         description: editing.description,
-        messenger_url: editing.messenger_url
+        messenger_url: editing.messenger_url,
+        // Every seller edit must be reviewed again by an administrator.
+        status: "pending"
       })
       .eq("id", editing.id)
       .eq("seller_id", sellerId);
@@ -120,7 +123,9 @@ export default function MyProducts() {
     if (error) {
       setMessage(error.message);
     } else {
-      setMessage("Product updated successfully.");
+      setMessage(
+        "Product updated and sent for admin review. It will appear in the marketplace again after approval."
+      );
       setEditing(null);
       loadProducts();
     }
@@ -952,7 +957,7 @@ export default function MyProducts() {
                       fontWeight: "bold"
                     }}
                   >
-                    ✓ Verified Seller
+                    ✓ Approved Listing
                   </p>
 
                   <h3 style={{ fontSize: "16px" }}>{product.title}</h3>
@@ -976,4 +981,3 @@ export default function MyProducts() {
     </div>
   );
 }
-
