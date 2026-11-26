@@ -16,7 +16,7 @@ export default function Login() {
     e.preventDefault();
 
     if (!supabase) {
-      setMessage("Supabase is not configured. Follow the README setup steps.");
+      setMessage("Supabase is not configured.");
       return;
     }
 
@@ -34,7 +34,19 @@ export default function Login() {
 
   async function signup() {
     if (!supabase) {
-      setMessage("Supabase is not configured. Follow the README setup steps.");
+      setMessage("Supabase is not configured.");
+      return;
+    }
+
+    const code = referralCode.trim().toUpperCase();
+
+    if (!email.trim() || !password || !code) {
+      setMessage("Email, password, and referral code are required.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setMessage("Password must be at least 6 characters.");
       return;
     }
 
@@ -42,16 +54,16 @@ export default function Login() {
       email,
       password,
       options: {
-        data: referralCode.trim()
-          ? { referral_code: referralCode.trim().toUpperCase() }
-          : {},
+        data: {
+          referral_code: code,
+        },
       },
     });
 
     setMessage(
       error
         ? error.message
-        : "Account created. Check your email if confirmation is enabled, then log in."
+        : "Account created! Check your email if confirmation is enabled."
     );
   }
 
@@ -66,7 +78,7 @@ export default function Login() {
         <section className="panel">
           <h1>Seller account</h1>
           <p className="muted">
-            Create an account or log in to submit shoe listings.
+            A valid referral code is required to create a seller account.
           </p>
 
           <form onSubmit={submit}>
@@ -92,14 +104,16 @@ export default function Login() {
             </div>
 
             <div className="field">
-              <label>Referral code (optional, for new accounts)</label>
+              <label>Referral code (required)</label>
               <input
+                type="text"
+                required
                 maxLength={10}
                 value={referralCode}
                 onChange={(e) =>
                   setReferralCode(e.target.value.toUpperCase())
                 }
-                placeholder="Enter referral code"
+                placeholder="Enter valid referral code"
               />
             </div>
 
