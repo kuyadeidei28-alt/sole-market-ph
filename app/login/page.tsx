@@ -1,6 +1,6 @@
-
 "use client";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -11,8 +11,15 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  async function submit(e: React.FormEvent) {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("ref");
+    if (code) setReferralCode(code.trim().toUpperCase());
+  }, []);
+
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!supabase) {
@@ -20,10 +27,12 @@ export default function Login() {
       return;
     }
 
+    setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    setBusy(false);
 
     if (error) {
       setMessage(error.message);
@@ -38,32 +47,29 @@ export default function Login() {
       return;
     }
 
-    const code = referralCode.trim().toUpperCase();
-
-    if (!email.trim() || !password || !code) {
-      setMessage("Email, password, and referral code are required.");
+    if (!email.trim() || password.length < 6) {
+      setMessage("Enter a valid email and a password with at least 6 characters.");
       return;
     }
 
-    if (password.length < 6) {
-      setMessage("Password must be at least 6 characters.");
-      return;
-    }
+    setBusy(true);
 
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: {
-          referral_code: code,
-        },
+        data: referralCode.trim()
+          ? { referral_code: referralCode.trim().toUpperCase() }
+          : {},
       },
     });
+
+    setBusy(false);
 
     setMessage(
       error
         ? error.message
-        : "Account created! Check your email if confirmation is enabled."
+        : "Account created. Check your email if confirmation is enabled, then log in."
     );
   }
 
@@ -78,7 +84,7 @@ export default function Login() {
         <section className="panel">
           <h1>Seller account</h1>
           <p className="muted">
-            A valid referral code is required to create a seller account.
+            Create an account or log in to submit shoe listings.
           </p>
 
           <form onSubmit={submit}>
@@ -104,30 +110,35 @@ export default function Login() {
             </div>
 
             <div className="field">
-              <label>Referral code (required)</label>
+              <label>Referral code (optional)</label>
               <input
                 type="text"
-                required
-                maxLength={10}
                 value={referralCode}
                 onChange={(e) =>
                   setReferralCode(e.target.value.toUpperCase())
                 }
-                placeholder="Enter valid referral code"
+                placeholder="Enter a referral code if you have one"
               />
+              <small className="muted">
+                You can register without a referral code.
+              </small>
             </div>
 
-            <button type="submit">Log in</button>{" "}
+            <button type="submit" disabled={busy}>
+              {busy ? "Please wait..." : "Log in"}
+            </button>{" "}
+
             <button
               type="button"
               className="secondary"
+              disabled={busy}
               onClick={signup}
             >
               Create account
             </button>
           </form>
 
-          {message && <p className="notice">{message}</p>}
+          {message && <p className="notice" role="status">{message}</p>}
         </section>
       </main>
     </>
