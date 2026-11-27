@@ -97,6 +97,21 @@ export default function Seller() {
         return;
       }
 
+      const { data: verification, error: verificationError } = await supabase
+        .from("seller_verifications")
+        .select("status")
+        .eq("seller_id", user.id)
+        .maybeSingle();
+
+      if (verificationError) {
+        setMessage("Seller verification is not ready yet. Please complete verification first.");
+        return;
+      }
+      if (!verification || verification.status !== "verified") {
+        setMessage("You must complete Seller Verification and receive approval before posting. Open Seller Dashboard > Seller Verification.");
+        return;
+      }
+
       let imageUrl: string | null = null;
       let uploadedPath: string | null = null;
 
