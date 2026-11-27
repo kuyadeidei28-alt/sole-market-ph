@@ -99,11 +99,12 @@ export default function ChatPage() {
     if (!body || !supabase || !userId || busy) return;
     if (mode === "direct" && !activeConversation) { setStatus("Start a private conversation first."); return; }
     setBusy(true);
-    const payload = mode === "group"
-      ? { sender_id: userId, room, body }
-      : { sender_id: userId, conversation_id: activeConversation, body };
-    const { error } = await supabase.from(mode === "group" ? "community_messages" : "direct_messages").insert(payload);
-    if (error) setStatus(error.message);
+    const client = supabase;
+    if (!client) { setStatus("Supabase connection is not configured."); setBusy(false); return; }
+    const result = mode === "group"
+      ? await client.from("community_messages").insert({ sender_id: userId, room, body })
+      : await client.from("direct_messages").insert({ sender_id: userId, conversation_id: activeConversation, body });
+    if (result.error) setStatus(result.error.message);
     else setDraft("");
     setBusy(false);
   };
