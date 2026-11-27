@@ -42,17 +42,14 @@ export default function Home() {
         <h1>Find your next pair.</h1>
         <p>Discover shoes from sellers around the Philippines. Browse listings and contact sellers directly through Messenger.</p>
         <div className="searchrow">
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search brand, shoe name, or keyword..." />
-          <button
-  className="btn"
-  type="button"
-  onClick={() =>
-    document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" })
-  }
->
-  Search
-</button>
-
+          <div className="searchbox">
+            <svg className="searchicon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="10.8" cy="10.8" r="6.8" fill="none" stroke="currentColor" strokeWidth="2.2" />
+              <path d="m16 16 5 5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+            </svg>
+            <span className="searchdivider" aria-hidden="true" />
+            <input className="searchinput" value={query} onChange={e => setQuery(e.target.value)} placeholder="Search shoes..." aria-label="Search shoes" />
+          </div>
         </div>
       </section>
     <h2 id="listings">Latest shoe listings</h2>
