@@ -28,18 +28,32 @@ button { cursor: pointer; }
 .btn:hover, button.btn:hover { background:var(--blue-dark); transform:translateY(-1px); }
 .btn.secondary, button.secondary { background:#EEF4FF; color:var(--blue); border-color:#DCE8FF; }
 .home-main { max-width:1220px; margin:0 auto; padding:30px 26px 76px; }
-.hero-modern { min-height:350px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:space-between; padding:48px 58px; margin-bottom:22px; border-radius:24px; background:linear-gradient(115deg,#F0F5FF 0%,#E8F0FF 55%,#DCE9FF 100%); color:var(--ink); }
+.hero-modern { min-height:390px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:space-between; padding:48px 58px; margin-bottom:22px; border-radius:24px; background:radial-gradient(ellipse at 78% 52%,#121d35 0%,#080b12 42%,#030407 78%); color:#fff; border:1px solid #17233a; box-shadow:0 18px 50px #05091430; }
+.hero-modern::before,.hero-modern::after { content:""; position:absolute; width:60%; height:5px; background:linear-gradient(90deg,transparent,#075CE5,#13a4ff,transparent); transform:rotate(-19deg); opacity:.9; }
+.hero-modern::before { top:25px; left:-15%; }
+.hero-modern::after { bottom:28px; right:-15%; }
+.hero-modern .hero-copy { max-width:700px; }
+.hero-modern .eyebrow { color:#f4f7ff; }
+.hero-modern .eyebrow-dot { box-shadow:0 0 16px #087bff; }
+.hero-modern h1 { color:#fff; }
+.hero-modern h1 span { color:#087bff; }
+.hero-modern p { color:#c1c9d8; }
 .hero-copy { max-width:590px; position:relative; z-index:2; }
 .eyebrow, .section-kicker { display:inline-flex; align-items:center; gap:8px; color:var(--blue); font-size:10px; font-weight:800; letter-spacing:1.3px; }
 .eyebrow-dot { width:7px; height:7px; border-radius:50%; background:var(--blue); }
 .hero-modern h1 { margin:17px 0 12px; font-family:Manrope,sans-serif; font-size:clamp(38px,5vw,62px); line-height:1.04; letter-spacing:-2.8px; font-weight:800; }
 .hero-modern h1 span { color:var(--blue); }
-.hero-modern p { max-width:490px; margin:0; color:#5E6B80; font-size:15px; line-height:1.75; }
+.hero-modern p { max-width:590px; margin:0; color:#c1c9d8; font-size:15px; line-height:1.75; }
 .hero-ctas { display:flex; align-items:center; gap:23px; margin-top:26px; }
 .hero-btn { padding:14px 19px; }
-.hero-secondary-link { color:#25334B; font-size:13px; font-weight:800; }
+.hero-secondary-link { color:#fff; font-size:13px; font-weight:800; }
 .hero-secondary-link span { color:var(--blue); margin-left:5px; }
-.hero-art { width:350px; height:260px; position:absolute; right:55px; top:50%; transform:translateY(-50%); display:grid; place-items:center; }
+.hero-art { width:430px; height:310px; position:absolute; right:25px; top:50%; transform:translateY(-50%); display:grid; place-items:center; z-index:1; }
+.hero-sneaker { position:relative; z-index:2; width:115%; height:auto; filter:drop-shadow(0 22px 22px #000b); transform:rotate(-8deg); }
+.hero-modern .hero-circle { border:1px solid #1c3767; background:radial-gradient(circle,#0b1b36aa,#06101e44 68%,transparent 70%); }
+.hero-modern .circle-one { width:310px; height:310px; }
+.hero-modern .circle-two { width:235px; height:235px; }
+.hero-modern .hero-sticker { background:#080d18; border-color:#075CE5; color:#dbeafe; }
 .hero-circle { position:absolute; border-radius:50%; }
 .circle-one { width:245px; height:245px; background:#D1E1FF; }
 .circle-two { width:185px; height:185px; background:#B8D0FF; border:1px solid #A6C4FF; }
@@ -141,7 +155,10 @@ button:not(.clear-search), .top .btn { background:var(--blue); color:white; bord
   .hero-modern { min-height:360px; padding:30px 23px; border-radius:18px; }
   .hero-modern h1 { font-size:43px; letter-spacing:-2px; }
   .hero-modern p { max-width:330px; font-size:13px; }
-  .hero-art { width:160px; height:150px; right:-20px; top:auto; bottom:3px; transform:none; opacity:.35; }
+  .hero-art { width:180px; height:150px; right:-35px; top:auto; bottom:0; transform:none; opacity:.38; }
+  .hero-sneaker { width:155%; }
+  .hero-modern::before { top:10px; }
+  .hero-modern::after { bottom:12px; }
   .circle-one { width:145px; height:145px; }
   .circle-two { width:105px; height:105px; }
   .hero-shoe { font-size:78px; }
