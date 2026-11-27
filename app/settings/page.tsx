@@ -20,8 +20,8 @@ export default function SellerSettingsPage() {
     let alive = true;
     async function load() {
       if (!supabase) { setError("Supabase connection unavailable."); setLoading(false); return; }
-      const { data: auth, error: authError } = await supabase.auth.getUser();
-      if (authError || !auth.user) { router.replace("/login"); return; }
+      const { data: auth, error: authError } = await supabase.auth.getSession();
+      if (authError || !auth.session?.user) { router.replace("/login"); return; }
       const { data, error: profileError } = await supabase
         .from("profiles")
         .select("display_name,location,bio,messenger_url")
