@@ -50,12 +50,10 @@ export default function MyProducts() {
       return;
     }
 
-    const {
-      data: { user },
-      error: authError
-    } = await supabase.auth.getUser();
+    const { data: auth, error: authError } = await supabase.auth.getSession();
+    const user = auth.session?.user;
 
-    if (authError || !user) {
+    if (!user) {
       router.replace("/login");
       return;
     }
