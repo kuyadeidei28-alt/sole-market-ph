@@ -17,25 +17,50 @@ export default function Seller() {
   const [photo, setPhoto] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [signedInEmail, setSignedInEmail] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (!supabase) {
+      setAuthChecked(true);
+      return;
+    }
+
     let alive = true;
-    async function loadSellerProfile() {
-      if (!supabase) return;
-      const { data: auth } = await supabase.auth.getSession();
-      if (!auth.session?.user) return;
-      const { data } = await supabase
+
+    async function loadSellerProfile(userId: string) {
+      const { data } = await supabase!
         .from("profiles")
         .select("display_name,messenger_url")
-        .eq("id", auth.session?.user.id)
+        .eq("id", userId)
         .maybeSingle();
       if (!alive || !data) return;
       setSeller(current => current || data.display_name || "");
       setMessenger(current => current || data.messenger_url || "");
     }
-    void loadSellerProfile();
-    return () => { alive = false; };
+
+    // Read the existing session when this page opens, then keep the page's
+    // signed-in indicator synchronized with Supabase auth changes.
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!alive) return;
+      const user = data.session?.user;
+      setSignedInEmail(user?.email || null);
+      setAuthChecked(true);
+      if (user) void loadSellerProfile(user.id);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!alive) return;
+      const user = session?.user;
+      setSignedInEmail(user?.email || null);
+      if (user) void loadSellerProfile(user.id);
+    });
+
+    return () => {
+      alive = false;
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -163,7 +188,7 @@ export default function Seller() {
 
         <nav>
           <Link href="/">Marketplace</Link>
-          <Link href="/login">Seller Login</Link>
+          <Link href={signedInEmail ? "/dashboard" : "/login"}>{signedInEmail ? "Seller Dashboard" : "Seller Login"}</Link>
         </nav>
       </header>
 
@@ -172,8 +197,16 @@ export default function Seller() {
           <h1>Post a shoe listing</h1>
 
           <p className="muted">
-            Log in first. New listings are pending until approved by an administrator.
+            {authChecked
+              ? signedInEmail
+                ? `You're signed in as ${signedInEmail}. You can post your shoe listing below.`
+                : "Please log in to your seller account before submitting a listing."
+              : "Checking your seller login..."}
+            {" "}New listings are pending until approved by an administrator.
           </p>
+          {authChecked && !signedInEmail && (
+            <p><Link className="btn" href="/login">Seller Login</Link></p>
+          )}
 
           <form onSubmit={submit}>
             <div className="field">
