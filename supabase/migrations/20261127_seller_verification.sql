@@ -29,6 +29,11 @@ CREATE TABLE IF NOT EXISTS public.seller_verifications (
   )
 );
 
+ALTER TABLE public.seller_verifications ADD COLUMN IF NOT EXISTS id_document_hash text;
+ALTER TABLE public.seller_verifications ADD COLUMN IF NOT EXISTS business_document_hash text;
+ALTER TABLE public.seller_verifications ADD COLUMN IF NOT EXISTS automatic_check_status text NOT NULL DEFAULT 'needs_review';
+ALTER TABLE public.seller_verifications ADD COLUMN IF NOT EXISTS automatic_check_notes text;
+
 ALTER TABLE public.seller_verifications ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Sellers can view own verification status" ON public.seller_verifications;
