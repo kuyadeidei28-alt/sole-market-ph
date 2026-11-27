@@ -34,3 +34,7 @@ footer { text-align:center; color:#77839a; padding:25px; font-size:13px; }
 
 .searchrow .btn { background:#075CE5; color:#FFFFFF; }
 .searchrow .btn:hover { background:#064FC4; color:#FFFFFF; }
+
+.searchrow input { background:#075CE5; color:#FFFFFF; border-color:#075CE5; }
+.searchrow input::placeholder { color:#FFFFFF; opacity:1; }
+.searchrow input:focus { outline:2px solid #075CE5; outline-offset:2px; }
