@@ -79,9 +79,9 @@ export default function AdminDashboard() {
       setSubscriptionWarning("");
 
       const { data: auth, error: authError } =
-        await client.auth.getUser();
+        await client.auth.getSession();
 
-      if (authError || !auth.user) {
+      if (authError || !auth.session?.user) {
         router.replace("/login");
         return;
       }
@@ -419,6 +419,9 @@ export default function AdminDashboard() {
               Refresh
             </button>
 
+            <Link href="/admin/referrals">Referral Management</Link>
+            <Link href="/admin/verifications">Seller Verifications</Link>
+            <Link href="/admin/reports">Reports</Link>
             <Link href="/dashboard">Seller Dashboard</Link>
           </div>
         </header>

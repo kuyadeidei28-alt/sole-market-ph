@@ -17,15 +17,16 @@ export default function Dashboard() {
         return;
       }
 
-      const { data: { user }, error } =
-        await supabase.auth.getUser();
+      // Read the persisted local session first. A temporary network error while
+      // validating the user should not look like an intentional logout.
+      const { data: { session }, error } = await supabase.auth.getSession();
 
-      if (error || !user) {
+      if (error || !session?.user) {
         router.replace("/login");
         return;
       }
 
-      setEmail(user.email || "");
+      setEmail(session.user.email || "");
       setLoading(false);
     }
 
@@ -55,6 +56,8 @@ export default function Dashboard() {
 
         <nav>
           <Link href="/">Marketplace</Link>
+          <Link href="/sellers">Seller Directory</Link>
+          <Link href="/settings">Profile Settings</Link>
           <Link href="/dashboard">Dashboard</Link>
           <button className="btn" onClick={logout}>
             Logout
@@ -84,6 +87,12 @@ export default function Dashboard() {
             </div>
 
             <div className="card">
+              <h2>Seller Verification</h2>
+              <p className="muted">Submit your ID and, for Business/Page Sellers, business registration documents.</p>
+              <Link className="btn" href="/verification">VERIFY SELLER ACCOUNT</Link>
+            </div>
+
+            <div className="card">
               <h2>Post a Product</h2>
               <p className="muted">
                 Add a new product to the marketplace.
@@ -107,6 +116,27 @@ export default function Dashboard() {
   <p>Yearly plan coming soon.</p>
 </div>
 
+<div className="card">
+              <h2>Seller Profile</h2>
+              <p className="muted">Set your store name, location, bio, and Messenger contact.</p>
+              <Link className="btn" href="/settings">EDIT SELLER PROFILE</Link>
+            </div>
+
+            <div className="card">
+              <h2>Seller Directory</h2>
+              <p className="muted">Discover sellers and their approved listings.</p>
+              <Link className="btn" href="/sellers">BROWSE SELLERS</Link>
+            </div>
+
+            <div className="card">
+              <h2>Referral Dashboard</h2>
+              <p className="muted">
+                View your invitation link, direct referrals, and commissions.
+              </p>
+              <Link className="btn" href="/referrals">
+                OPEN REFERRAL DASHBOARD
+              </Link>
+            </div>
 </div>
 </section>
 </main>

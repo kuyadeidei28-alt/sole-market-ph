@@ -1,0 +1,12 @@
+"use client";
+import {useEffect,useState} from "react";
+import Link from "next/link";
+import {supabase} from "@/lib/supabase";
+type Report={id:string;reporter_id:string;product_id:string|null;seller_id:string|null;reason:string;details:string;status:string;admin_notes:string|null;created_at:string;product_title:string|null};
+export default function AdminReports(){
+ const [rows,setRows]=useState<Report[]>([]);const [message,setMessage]=useState("Loading reports...");const [busy,setBusy]=useState("");
+ async function load(){if(!supabase){setMessage("Supabase unavailable.");return;}const {data,error}=await supabase.rpc("admin_list_marketplace_reports");if(error){setMessage(error.message);return;}setRows((data||[]) as Report[]);setMessage("");}
+ useEffect(()=>{void load();},[]);
+ async function update(r:Report,status:string){if(!supabase)return;const notes=window.prompt("Admin notes (optional):",r.admin_notes||"");if(notes===null)return;setBusy(r.id);const {error}=await supabase.rpc("admin_update_marketplace_report",{p_report_id:r.id,p_status:status,p_notes:notes});setBusy("");if(error){setMessage(error.message);return;}setMessage("Report updated.");await load();}
+ return <><header className="top"><Link className="brand" href="/admin">SOLE MARKET PH</Link><nav><Link href="/admin">Admin Dashboard</Link><Link href="/admin/verifications">Seller Verifications</Link></nav></header><main><section className="panel"><h1>Reported Listings & Sellers</h1><p className="muted">Review buyer reports and record the action taken.</p>{message&&<p className="notice">{message}</p>}{rows.map(r=><article className="card" key={r.id} style={{marginBottom:14}}><h2>{r.product_title||"Seller report"} · {r.reason.replaceAll("_"," ")}</h2><p><strong>Reported seller ID:</strong> {r.seller_id||"—"}</p><p><strong>Product ID:</strong> {r.product_id||"—"}</p><p><strong>Details:</strong> {r.details}</p><p><strong>Date:</strong> {new Date(r.created_at).toLocaleString()}</p><p><strong>Status:</strong> {r.status}</p>{r.admin_notes&&<p><strong>Admin notes:</strong> {r.admin_notes}</p>}{r.status!=="resolved"&&r.status!=="dismissed"&&<div style={{display:"flex",gap:8,flexWrap:"wrap"}}><button disabled={busy===r.id} onClick={()=>update(r,"reviewing")}>Mark Reviewing</button><button disabled={busy===r.id} onClick={()=>update(r,"resolved")}>Resolve</button><button disabled={busy===r.id} onClick={()=>update(r,"dismissed")}>Dismiss</button></div>}</article>)}</section></main></>;
+}

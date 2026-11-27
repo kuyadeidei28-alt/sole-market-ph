@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -17,7 +17,51 @@ export default function Seller() {
   const [photo, setPhoto] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [signedInEmail, setSignedInEmail] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!supabase) {
+      setAuthChecked(true);
+      return;
+    }
+
+    let alive = true;
+
+    async function loadSellerProfile(userId: string) {
+      const { data } = await supabase!
+        .from("profiles")
+        .select("display_name,messenger_url")
+        .eq("id", userId)
+        .maybeSingle();
+      if (!alive || !data) return;
+      setSeller(current => current || data.display_name || "");
+      setMessenger(current => current || data.messenger_url || "");
+    }
+
+    // Read the existing session when this page opens, then keep the page's
+    // signed-in indicator synchronized with Supabase auth changes.
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!alive) return;
+      const user = data.session?.user;
+      setSignedInEmail(user?.email || null);
+      setAuthChecked(true);
+      if (user) void loadSellerProfile(user.id);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!alive) return;
+      const user = session?.user;
+      setSignedInEmail(user?.email || null);
+      if (user) void loadSellerProfile(user.id);
+    });
+
+    return () => {
+      alive = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -45,13 +89,26 @@ export default function Seller() {
     setSubmitting(true);
 
     try {
-      const {
-        data: { user },
-        error: authError
-      } = await supabase.auth.getUser();
+      const { data: auth, error: authError } = await supabase.auth.getSession();
+      const user = auth.session?.user;
 
       if (authError || !user) {
         setMessage("Please log in first at the Seller Login page.");
+        return;
+      }
+
+      const { data: verification, error: verificationError } = await supabase
+        .from("seller_verifications")
+        .select("status")
+        .eq("seller_id", user.id)
+        .maybeSingle();
+
+      if (verificationError) {
+        setMessage("Seller verification is not ready yet. Please complete verification first.");
+        return;
+      }
+      if (!verification || verification.status !== "verified") {
+        setMessage("You must complete Seller Verification and receive approval before posting. Open Seller Dashboard > Seller Verification.");
         return;
       }
 
@@ -146,7 +203,7 @@ export default function Seller() {
 
         <nav>
           <Link href="/">Marketplace</Link>
-          <Link href="/login">Seller Login</Link>
+          <Link href={signedInEmail ? "/dashboard" : "/login"}>{signedInEmail ? "Seller Dashboard" : "Seller Login"}</Link>
         </nav>
       </header>
 
@@ -155,8 +212,16 @@ export default function Seller() {
           <h1>Post a shoe listing</h1>
 
           <p className="muted">
-            Log in first. New listings are pending until approved by an administrator.
+            {authChecked
+              ? signedInEmail
+                ? `You're signed in as ${signedInEmail}. You can post your shoe listing below.`
+                : "Please log in to your seller account before submitting a listing."
+              : "Checking your seller login..."}
+            {" "}New listings are pending until approved by an administrator.
           </p>
+          {authChecked && !signedInEmail && (
+            <p><Link className="btn" href="/login">Seller Login</Link></p>
+          )}
 
           <form onSubmit={submit}>
             <div className="field">
