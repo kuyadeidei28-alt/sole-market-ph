@@ -73,9 +73,16 @@ export default function Home() {
             <span className="eyebrow"><span className="eyebrow-dot" /> THE PHILIPPINES’ SNEAKER MARKETPLACE</span>
             <h1>Find your next<br /><span>favorite pair.</span></h1>
             <p>Discover shoes from sellers around the Philippines. Browse listings and connect directly with sellers.</p>
-            <div className="hero-ctas">
-              <a className="btn hero-btn" href="#listings">Browse Listings <span aria-hidden="true">↓</span></a>
-              <Link className="hero-secondary-link" href="/sellers">Explore Sellers <span aria-hidden="true">→</span></Link>
+            <div className="hero-searchbar">
+              <span className="hero-search-icon" aria-hidden="true">⌕</span>
+              <input
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" }); }}
+                placeholder="Search shoes, brands, or keywords..."
+                aria-label="Search shoes, brands, or keywords"
+              />
+              <a href="#listings" className="hero-search-submit" aria-label="View search results">Search <span aria-hidden="true">→</span></a>
             </div>
           </div>
           <div className="hero-art" aria-hidden="true">
@@ -174,6 +181,18 @@ export default function Home() {
 
 
 <style jsx>{`
+  .hero-searchbar { display: flex; align-items: center; gap: 12px; width: min(100%, 590px); min-height: 64px; margin-top: 27px; padding: 8px 9px 8px 20px; border: 1px solid rgba(255,255,255,.2); border-radius: 16px; background: #075CE5; box-shadow: 0 12px 30px rgba(7,92,229,.24); }
+  .hero-search-icon { flex: 0 0 auto; color: #fff; font-size: 31px; line-height: 1; }
+  .hero-searchbar input { flex: 1 1 auto; width: 0; min-width: 0; border: 0; outline: 0; background: transparent; color: #fff; font: inherit; font-size: 15px; font-weight: 600; }
+  .hero-searchbar input::placeholder { color: rgba(255,255,255,.82); opacity: 1; }
+  .hero-search-submit { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 9px; min-height: 46px; padding: 0 18px; border-radius: 11px; background: #fff; color: #075CE5; font-size: 14px; font-weight: 800; text-decoration: none; }
+  .hero-search-submit span { font-size: 18px; }
+  @media (max-width: 640px) {
+    .hero-searchbar { gap: 8px; min-height: 56px; margin-top: 20px; padding: 6px 7px 6px 13px; border-radius: 13px; }
+    .hero-search-icon { font-size: 26px; }
+    .hero-searchbar input { font-size: 12px; }
+    .hero-search-submit { min-height: 42px; padding: 0 12px; font-size: 12px; }
+  }
   .product-info-compact { padding: 13px 14px 14px; }
   .product-info-compact .product-brand { margin-bottom: 3px; font-size: 10px; }
   .product-info-compact h3 { min-height: 0; margin: 0 0 8px; font-size: 17px; line-height: 1.2; letter-spacing: -.25px; }
