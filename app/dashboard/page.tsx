@@ -55,6 +55,8 @@ export default function Dashboard() {
 
         <nav>
           <Link href="/">Marketplace</Link>
+          <Link href="/sellers">Seller Directory</Link>
+          <Link href="/settings">Profile Settings</Link>
           <Link href="/dashboard">Dashboard</Link>
           <button className="btn" onClick={logout}>
             Logout
@@ -108,6 +110,18 @@ export default function Dashboard() {
 </div>
 
 <div className="card">
+              <h2>Seller Profile</h2>
+              <p className="muted">Set your store name, location, bio, and Messenger contact.</p>
+              <Link className="btn" href="/settings">EDIT SELLER PROFILE</Link>
+            </div>
+
+            <div className="card">
+              <h2>Seller Directory</h2>
+              <p className="muted">Discover sellers and their approved listings.</p>
+              <Link className="btn" href="/sellers">BROWSE SELLERS</Link>
+            </div>
+
+            <div className="card">
               <h2>Referral Dashboard</h2>
               <p className="muted">
                 View your invitation link, direct referrals, and commissions.
