@@ -107,6 +107,15 @@ export default function Dashboard() {
   <p>Yearly plan coming soon.</p>
 </div>
 
+<div className="card">
+              <h2>Referral Dashboard</h2>
+              <p className="muted">
+                View your invitation link, direct referrals, and commissions.
+              </p>
+              <Link className="btn" href="/referrals">
+                OPEN REFERRAL DASHBOARD
+              </Link>
+            </div>
 </div>
 </section>
 </main>
