@@ -79,9 +79,9 @@ export default function AdminDashboard() {
       setSubscriptionWarning("");
 
       const { data: auth, error: authError } =
-        await client.auth.getUser();
+        await client.auth.getSession();
 
-      if (authError || !auth.user) {
+      if (authError || !auth.session?.user) {
         router.replace("/login");
         return;
       }
