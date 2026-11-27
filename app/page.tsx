@@ -16,6 +16,8 @@ type Product = {
   image_url: string | null;
   messenger_url: string;
   seller_name: string | null;
+  listing_type?: string | null;
+  estimated_arrival?: string | null;
   created_at?: string;
 };
 
@@ -25,11 +27,32 @@ export default function Home() {
   const [category, setCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState("newest");
+  const [heroSlide, setHeroSlide] = useState(0);
+  const heroImages = ["/sole-hero-1.jpg","/sole-hero-2.jpg","/sole-hero-3.jpg","/sole-hero-4.jpg","/sole-hero-5.jpg"];
+  useEffect(() => { const timer = window.setInterval(() => setHeroSlide(v => (v + 1) % heroImages.length), 3000); return () => window.clearInterval(timer); }, []);
 
   useEffect(() => {
     async function load() {
       if (!supabase) { setLoading(false); return; }
-      const { data } = await supabase.from("products").select("*").eq("status", "approved").order("created_at", { ascending: false });
+      // Prefer the explicit listing type filter. If the additive migration has
+      // not been applied yet, safely fall back to the current approved catalog;
+      // existing listings are all On-Hand until the new listing type is enabled.
+      let { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("status", "approved")
+        .eq("listing_type", "on_hand")
+        .order("created_at", { ascending: false });
+
+      if (error && /listing_type|column/i.test(error.message)) {
+        const fallback = await supabase
+          .from("products")
+          .select("*")
+          .eq("status", "approved")
+          .order("created_at", { ascending: false });
+        data = fallback.data;
+      }
+
       setProducts((data || []) as Product[]);
       setLoading(false);
     }
@@ -96,8 +119,17 @@ export default function Home() {
         </div>
       </header>
 
+      <div className="trust-ticker" role="region" aria-label="Marketplace notice">
+        <div className="trust-ticker-track">
+          <span>AUTHENTICITY MATTERS</span><span>TRUSTED SELLERS</span><span>MARKETPLACE ACTIVITIES MONITORED BY OUR MANAGEMENT TEAM</span><span>SUSPICIOUS ACTIVITIES SUBJECT TO REVIEW AND ACTION</span><span>ALL TRADEMARKS, LOGOS, AND BRAND NAMES BELONG TO THEIR RESPECTIVE OWNERS</span>
+          <span aria-hidden="true">AUTHENTICITY MATTERS</span><span aria-hidden="true">TRUSTED SELLERS</span><span aria-hidden="true">MARKETPLACE ACTIVITIES MONITORED BY OUR MANAGEMENT TEAM</span><span aria-hidden="true">SUSPICIOUS ACTIVITIES SUBJECT TO REVIEW AND ACTION</span><span aria-hidden="true">ALL TRADEMARKS, LOGOS, AND BRAND NAMES BELONG TO THEIR RESPECTIVE OWNERS</span>
+        </div>
+      </div>
+
       <main className="home-main">
-        <section className="hero hero-modern">
+        <section className="hero hero-modern hero-slideshow">
+          <div className="hero-slides" aria-hidden="true">{heroImages.map((image, index) => <div key={image} className={"hero-slide " + (heroSlide === index ? "hero-slide-active" : "")} style={{ backgroundImage: "url(" + image + ")" }} />)}</div>
+          <div className="hero-shade" aria-hidden="true" />
           <div className="hero-copy">
             <span className="eyebrow"><span className="eyebrow-dot" /> THE PHILIPPINES’ SNEAKER MARKETPLACE</span>
             <h1>Find your next<br /><span>favorite pair.</span></h1>
@@ -108,40 +140,36 @@ export default function Home() {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" }); }}
-                placeholder="Search shoes, brands, or keywords..."
+                placeholder="Search on-hand shoes (e.g., Nike, Jordan, Adidas)..."
                 aria-label="Search shoes, brands, or keywords"
               />
               <a href="#listings" className="hero-search-submit" aria-label="View search results">Search <span aria-hidden="true">→</span></a>
             </div>
           </div>
-          <div className="hero-art" aria-hidden="true">
-            <div className="hero-circle circle-one" />
-            <div className="hero-circle circle-two" />
-            <svg className="hero-sneaker" viewBox="0 0 520 300" role="presentation">
-              <defs><linearGradient id="shoeBody" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#f4f6fa"/><stop offset="1" stopColor="#7e8794"/></linearGradient></defs>
-              <path d="M55 194 Q95 180 130 142 L178 62 Q195 34 225 52 L286 100 Q319 121 365 135 L447 166 Q475 180 484 218 L478 242 Q460 263 416 264 L100 264 Q55 259 40 232 Q32 211 55 194Z" fill="url(#shoeBody)" stroke="#d7deea" strokeWidth="8"/>
-              <path d="M178 63 Q205 106 248 139 L330 173 L442 205 Q462 211 478 231 L477 245 Q460 262 416 264 L100 264 Q55 259 40 232 L44 214 Q100 220 137 191Z" fill="#151922"/>
-              <path d="M82 230 Q206 246 469 237" stroke="#fff" strokeWidth="9" fill="none"/>
-              <path d="M178 66 L228 104 L268 138 L310 161" stroke="#0a0d13" strokeWidth="12" fill="none"/>
-              <path d="M195 89 L254 129 M214 73 L274 116 M237 63 L294 103" stroke="#f5f7fb" strokeWidth="8" strokeLinecap="round"/>
-              <path d="M134 165 L180 190 L232 203" stroke="#0b0f18" strokeWidth="15" fill="none"/>
-              <path d="M60 210 Q92 196 124 207 L153 227" stroke="#c6cedb" strokeWidth="9" fill="none"/>
-              <path d="M270 178 Q333 202 415 220" stroke="#075CE5" strokeWidth="8" fill="none"/>
-            </svg>
-            <div className="hero-sticker">BUY · SELL · CONNECT</div>
-          </div>
+          <div className="hero-slide-dots">{heroImages.map((image, index) => <button key={image} type="button" className={"hero-slide-dot " + (heroSlide === index ? "active" : "")} onClick={() => setHeroSlide(index)} aria-label={"Show hero image " + (index + 1)} />)}</div>
         </section>
 
         <section className="listings-section" id="listings">
           <div className="section-heading">
             <div>
-              <span className="section-kicker">FIND YOUR NEXT PAIR</span>
-              <h2>Browse Listings</h2>
-              <p>Explore the latest shoes posted by marketplace sellers.</p>
+              <span className="section-kicker">SOLE MARKET PH</span>
+              <h2>Marketplace</h2>
+              <p>Browse ready-stock shoes and connect directly with sellers.</p>
             </div>
             <Link className="text-link" href="/sellers">View Seller Directory <span>→</span></Link>
           </div>
 
+          <div className="listing-type-tabs" aria-label="Listing type">
+            <div className="listing-type-tab listing-type-tab-active" aria-current="page">
+              <span className="listing-tab-icon" aria-hidden="true">👟</span>
+              <span className="listing-tab-copy"><strong>On-Hand Shoes</strong><small>Ready stocks · Available now</small></span>
+            </div>
+            <div className="listing-type-tab listing-type-tab-disabled" aria-disabled="true">
+              <span className="listing-tab-icon" aria-hidden="true">▣</span>
+              <span className="listing-tab-copy"><strong>Pre-Order Shoes <em>COMING SOON</em></strong><small>For advance order · With ETA</small></span>
+              <span className="listing-tab-lock" aria-hidden="true">🔒</span>
+            </div>
+          </div>
           <div className="search-panel">
             <div className="searchrow searchrow-modern">
               <span className="search-icon" aria-hidden="true">⌕</span>
@@ -162,14 +190,14 @@ export default function Home() {
 
           {!supabase && <div className="notice">Connect your Supabase project by creating a .env.local file. See README.md for setup instructions.</div>}
           {loading ? <div className="empty-state"><div className="loading-dot" /><p>Loading listings...</p></div> : filtered.length === 0 ? (
-            <div className="empty-state"><div className="empty-icon">👟</div><h3>{query ? "No shoes found" : "No approved listings yet"}</h3><p>{query ? "Try another shoe name, brand, or keyword." : "When sellers submit products and an administrator approves them, they will appear here."}</p>{query && <button className="btn" onClick={() => setQuery("")}>Clear Search</button>}</div>
+            <div className="empty-state"><div className="empty-icon">👟</div><h3>{query ? "No shoes found" : "No on-hand listings yet"}</h3><p>{query ? "Try another shoe name, brand, or keyword." : "When sellers submit products and an administrator approves them, they will appear here."}</p>{query && <button className="btn" onClick={() => setQuery("")}>Clear Search</button>}</div>
           ) : (
             <div className="product-grid">
               {filtered.map(p => (
                 <article className="product-card" key={p.id}>
                   <div className="product-photo-wrap">
                     {p.image_url ? <img className="product-photo" src={p.image_url} alt={p.title} /> : <div className="product-photo-placeholder">👟</div>}
-                    <span className="approved-pill">✓ Approved</span>
+                    <span className="approved-pill on-hand-pill">ON-HAND</span>
                   </div>
                   <div className="product-info product-info-compact">
                     <p className="product-brand">{p.brand || p.category || "SHOES"}</p>
@@ -206,6 +234,47 @@ export default function Home() {
 
 
 <style jsx>{`
+  .hero-slideshow { isolation:isolate; background:#030407; }
+  .hero-slides,.hero-shade { position:absolute; inset:0; z-index:-1; }
+  .hero-slide { position:absolute; inset:0; background-size:cover; background-position:center 42%; opacity:0; transform:scale(1.02); transition:opacity 1s ease,transform 4s ease; }
+  .hero-slide-active { opacity:1; transform:scale(1); }
+  .hero-shade { z-index:0; background:linear-gradient(90deg,rgba(0,0,0,.94),rgba(0,0,0,.82) 38%,rgba(0,0,0,.54) 68%,rgba(0,0,0,.42)),linear-gradient(0deg,rgba(0,0,0,.5),transparent 55%); }
+  .hero-slideshow .hero-copy { z-index:2; }
+  .hero-slide-dots { position:absolute; z-index:3; right:28px; bottom:22px; display:flex; gap:8px; }
+  .hero-slide-dot { width:8px; height:8px; padding:0!important; border:0; border-radius:50%; background:#ffffff80; }
+  .hero-slide-dot.active { width:24px; border-radius:9px; background:#087bff; }
+  @media(max-width:640px){.hero-shade{background:linear-gradient(90deg,rgba(0,0,0,.91),rgba(0,0,0,.65)),linear-gradient(0deg,rgba(0,0,0,.45),transparent)}.hero-slide-dots{right:18px;bottom:15px}}
+  @media(prefers-reduced-motion:reduce){.hero-slide{transition:none;transform:none}}
+
+  .trust-ticker { width:100%; overflow:hidden; background:#075CE5; color:#fff; border-top:1px solid rgba(255,255,255,.16); border-bottom:1px solid #064fc5; }
+  .trust-ticker-track { display:flex; align-items:center; gap:34px; width:max-content; min-height:42px; padding-left:100%; white-space:nowrap; animation:soleTicker 32s linear infinite; }
+  .trust-ticker-track span { flex:0 0 auto; font-size:11px; font-weight:800; letter-spacing:.055em; }
+  .trust-ticker-track span::after { content:"•"; margin-left:34px; color:#bfdbfe; }
+  .trust-ticker:hover .trust-ticker-track { animation-play-state:paused; }
+  @keyframes soleTicker { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .trust-ticker-track { animation:none; padding:13px 16px; width:auto; white-space:normal; flex-wrap:wrap; justify-content:center; } .trust-ticker-track span[aria-hidden="true"] { display:none; } }
+  .listing-type-tabs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:0 0 22px; }
+  .listing-type-tab { min-height:96px; display:flex; align-items:center; gap:16px; padding:16px 20px; border-radius:16px; border:1px solid #e2e8f0; }
+  .listing-type-tab-active { position:relative; color:#fff; background:#075CE5; border-color:#075CE5; box-shadow:0 8px 20px rgba(7,92,229,.15); }
+  .listing-type-tab-active:after { content:""; position:absolute; bottom:-9px; left:48%; width:18px; height:18px; background:#075CE5; transform:rotate(45deg); border-radius:2px; }
+  .listing-type-tab-disabled { color:#263244; background:#e9eef6; cursor:not-allowed; opacity:.9; }
+  .listing-tab-icon { flex:0 0 auto; font-size:32px; line-height:1; }
+  .listing-tab-copy { display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .listing-tab-copy strong { font-size:20px; line-height:1.15; }
+  .listing-tab-copy small { font-size:13px; opacity:.88; }
+  .listing-tab-copy em { display:inline-block; margin-left:6px; padding:4px 8px; border-radius:99px; background:#facc15; color:#111827; font-size:10px; font-style:normal; font-weight:900; white-space:nowrap; vertical-align:middle; }
+  .listing-tab-lock { margin-left:auto; font-size:20px; }
+  .on-hand-pill { background:#07983d; color:#fff; border-radius:99px; font-weight:800; letter-spacing:.2px; }
+  @media (max-width:640px) {
+    .listing-type-tabs { gap:10px; margin-bottom:18px; }
+    .listing-type-tab { min-height:112px; gap:9px; padding:12px 10px; border-radius:15px; align-items:center; }
+    .listing-tab-icon { font-size:26px; }
+    .listing-tab-copy { gap:7px; }
+    .listing-tab-copy strong { font-size:15px; line-height:1.15; }
+    .listing-tab-copy small { font-size:11px; line-height:1.25; }
+    .listing-tab-copy em { display:table; margin:4px 0 0; font-size:9px; }
+    .listing-tab-lock { font-size:15px; align-self:flex-start; }
+  }
   .report-listing-btn { display:block; margin:9px auto 0; padding:5px 8px; border:0; background:transparent; color:#64748b; font-size:11px; text-decoration:underline; cursor:pointer; }
   .hero-searchbar { display: flex; align-items: center; gap: 12px; width: min(100%, 590px); min-height: 64px; margin-top: 27px; padding: 8px 9px 8px 20px; border: 1px solid rgba(255,255,255,.2); border-radius: 16px; background: #075CE5; box-shadow: 0 12px 30px rgba(7,92,229,.24); }
   .hero-search-icon { flex: 0 0 auto; color: #fff; font-size: 31px; line-height: 1; }
@@ -245,7 +314,7 @@ export default function Home() {
   }
 `}</style>
 
-      <footer className="site-footer"><div className="footer-inner"><Link className="brand footer-brand" href="/"><span className="brand-mark">S</span><span>SOLE MARKET <b>PH</b></span></Link><span>Connecting shoe buyers and sellers across the Philippines.</span><span>© {new Date().getFullYear()} SOLE MARKET PH</span></div></footer>
+      <footer className="site-footer"><div className="footer-inner"><Link className="brand footer-brand" href="/"><span className="brand-mark">S</span><span>SOLE MARKET <b>PH</b></span></Link><span>Connecting shoe buyers and sellers across the Philippines.</span><span>© {new Date().getFullYear()} SOLE MARKET PH</span></div><div className="footer-inner" style={{display:"block",paddingTop:"12px",paddingBottom:"20px",fontSize:"12px",lineHeight:1.6,color:"#64748b"}}><strong>Disclaimer:</strong> SOLE MARKET PH is an independent marketplace and is not affiliated with or endorsed by third-party brands unless expressly stated. All trademarks, logos, brand names, product names, images, and copyrighted materials belong to their respective owners. Listings and product claims are provided by independent sellers. Buyers should verify product authenticity and transaction details before purchasing. Marketplace activity may be monitored; suspicious listings and reported scam activity may be reviewed and appropriate action may be taken under platform policies.</div></footer>
     </>
   );
 }
