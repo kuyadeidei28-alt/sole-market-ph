@@ -54,8 +54,8 @@ export default function ChatPage() {
     async function load() {
       if (mode === "direct" && !activeConversation) { setMessages([]); return; }
       const query = mode === "group"
-        ? client.from("community_messages").select("id,sender_id,body,created_at").eq("room", room)
-        : client.from("direct_messages").select("id,sender_id,body,created_at").eq("conversation_id", activeConversation);
+        ? client!.from("community_messages").select("id,sender_id,body,created_at").eq("room", room)
+        : client!.from("direct_messages").select("id,sender_id,body,created_at").eq("conversation_id", activeConversation);
       const { data, error } = await query.order("created_at", { ascending: true }).limit(100);
       if (!alive) return;
       if (error) { setStatus("Chat setup needed: " + error.message); setMessages([]); return; }
@@ -63,14 +63,14 @@ export default function ChatPage() {
     }
     void load();
     const table = mode === "group" ? "community_messages" : "direct_messages";
-    const channel = client.channel("sole-chat-" + mode + "-" + (mode === "group" ? room : activeConversation))
+    const channel = client!.channel("sole-chat-" + mode + "-" + (mode === "group" ? room : activeConversation))
       .on("postgres_changes", { event: "INSERT", schema: "public", table }, payload => {
         const row = payload.new as Message & { room?: string; conversation_id?: string };
         if (mode === "group" ? row.room === room : row.conversation_id === activeConversation) {
           setMessages(prev => prev.some(m => m.id === row.id) ? prev : [...prev, row]);
         }
       }).subscribe();
-    return () => { alive = false; void client.removeChannel(channel); };
+    return () => { alive = false; void client!.removeChannel(channel); };
   }, [mode, room, activeConversation, userId]);
 
   const startConversation = async () => {
