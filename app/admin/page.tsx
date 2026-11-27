@@ -419,6 +419,7 @@ export default function AdminDashboard() {
               Refresh
             </button>
 
+            <Link href="/admin/referrals">Referral Management</Link>
             <Link href="/dashboard">Seller Dashboard</Link>
           </div>
         </header>
