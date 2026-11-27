@@ -103,3 +103,49 @@ begin
   alter publication supabase_realtime add table public.direct_messages;
 exception when duplicate_object then null;
 end $$;
+
+
+-- Securely start or reuse a one-to-one conversation. A caller can only add
+-- themselves and the explicitly supplied other user; no arbitrary member edits.
+create or replace function public.start_direct_conversation(p_other_user_id uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_me uuid := auth.uid();
+  v_conversation_id uuid;
+begin
+  if v_me is null then
+    raise exception 'You must be logged in.';
+  end if;
+  if p_other_user_id is null or p_other_user_id = v_me then
+    raise exception 'Choose another valid user.';
+  end if;
+  if not exists (select 1 from auth.users u where u.id = p_other_user_id) then
+    raise exception 'User not found.';
+  end if;
+
+  select mine.conversation_id into v_conversation_id
+  from public.direct_conversation_members mine
+  join public.direct_conversation_members theirs
+    on theirs.conversation_id = mine.conversation_id
+  where mine.user_id = v_me and theirs.user_id = p_other_user_id
+    and (select count(*) from public.direct_conversation_members all_members
+         where all_members.conversation_id = mine.conversation_id) = 2
+  limit 1;
+
+  if v_conversation_id is null then
+    insert into public.direct_conversations(created_by)
+    values (v_me) returning id into v_conversation_id;
+    insert into public.direct_conversation_members(conversation_id,user_id)
+    values (v_conversation_id,v_me),(v_conversation_id,p_other_user_id);
+  end if;
+
+  return v_conversation_id;
+end;
+$$;
+
+revoke all on function public.start_direct_conversation(uuid) from public;
+grant execute on function public.start_direct_conversation(uuid) to authenticated;
