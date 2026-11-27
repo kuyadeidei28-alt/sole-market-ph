@@ -47,16 +47,12 @@ export default function Home() {
         <h1>Find your next pair.</h1>
         <p>Discover shoes from sellers around the Philippines. Browse listings and contact sellers directly through Messenger.</p>
         <div className="searchrow">
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search brand, shoe name, or keyword..." />
-          <button
-  className="btn"
-  type="button"
-  onClick={() =>
-    document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" })
-  }
->
-  Search shoes
-</button>
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search shoes, brands, or keywords..."
+            aria-label="Search shoes, brands, or keywords"
+          />
 
         </div>
       </section>
