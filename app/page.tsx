@@ -40,7 +40,7 @@ export default function Home() {
   return <>
     <header className="top">
       <Link className="brand" href="/">SOLE MARKET PH</Link>
-      <nav><Link href="/">Marketplace</Link><Link href="/sellers">Seller Directory</Link><Link href="/login">Seller Login</Link><Link className="btn" href="/seller">Post a Product</Link></nav>
+      <nav><Link href="/">Marketplace</Link><Link href="/sellers">Seller Directory</Link><Link href="/community">Community</Link><Link href="/login">Seller Login</Link><Link className="btn" href="/seller">Post a Product</Link></nav>
     </header>
     <main>
       <section className="hero">
