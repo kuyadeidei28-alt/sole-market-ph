@@ -23,12 +23,12 @@ export default function Seller() {
     let alive = true;
     async function loadSellerProfile() {
       if (!supabase) return;
-      const { data: auth } = await supabase.auth.getUser();
-      if (!auth.user) return;
+      const { data: auth } = await supabase.auth.getSession();
+      if (!auth.session?.user) return;
       const { data } = await supabase
         .from("profiles")
         .select("display_name,messenger_url")
-        .eq("id", auth.user.id)
+        .eq("id", auth.session?.user.id)
         .maybeSingle();
       if (!alive || !data) return;
       setSeller(current => current || data.display_name || "");
@@ -67,7 +67,7 @@ export default function Seller() {
       const {
         data: { user },
         error: authError
-      } = await supabase.auth.getUser();
+      } = await supabase.auth.getSession();
 
       if (authError || !user) {
         setMessage("Please log in first at the Seller Login page.");
