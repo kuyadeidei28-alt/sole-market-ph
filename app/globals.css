@@ -258,3 +258,30 @@ html[data-theme="dark"] .btn.secondary, html[data-theme="dark"] button.secondary
 .theme-switch-label { white-space:nowrap; }
 html[data-theme="dark"] .theme-switch { background:#F4F7FC; color:#111827; border-color:#D8E0EC; }
 @media(max-width:640px) { .theme-switch { right:12px; bottom:12px; min-height:42px; padding:0 13px; font-size:12px; } }
+
+
+/* Homepage rotating hero background */
+.hero-slideshow { isolation:isolate; background:#050914 !important; }
+.hero-slideshow .hero-slides { position:absolute; inset:0; z-index:0; }
+.hero-slideshow .hero-slide {
+ position:absolute; inset:0; background-size:cover; background-position:center;
+ opacity:0; transform:scale(1.035); transition:opacity 1s ease, transform 4s ease;
+}
+.hero-slideshow .hero-slide-active { opacity:1; transform:scale(1); }
+.hero-slideshow .hero-shade {
+ position:absolute; inset:0; z-index:1;
+ background:linear-gradient(90deg,rgba(3,7,15,.88) 0%,rgba(3,7,15,.68) 54%,rgba(3,7,15,.38) 100%);
+}
+.hero-slideshow .hero-copy { z-index:2; }
+.hero-slideshow .hero-slide-dots {
+ position:absolute; z-index:3; right:26px; bottom:24px; display:flex; align-items:center; gap:9px;
+}
+.hero-slideshow .hero-slide-dot {
+ width:10px; height:10px; min-height:10px; padding:0; border:0; border-radius:50%;
+ background:rgba(255,255,255,.55); cursor:pointer; transition:all .2s ease;
+}
+.hero-slideshow .hero-slide-dot.active { width:28px; border-radius:99px; background:#087bff; }
+@media(max-width:640px) {
+ .hero-slideshow .hero-slide-dots { right:18px; bottom:18px; }
+ .hero-slideshow .hero-shade { background:linear-gradient(90deg,rgba(3,7,15,.88),rgba(3,7,15,.56)); }
+}
