@@ -35,7 +35,7 @@ export default function Home() {
   return <>
     <header className="top">
       <Link className="brand" href="/">SOLE MARKET PH</Link>
-      <nav><Link href="/">Marketplace</Link><Link href="/login">Seller Login</Link><Link className="btn" href="/seller">Post a Product</Link></nav>
+      <nav><Link href="/">Marketplace</Link><Link href="/sellers">Seller Directory</Link><Link href="/login">Seller Login</Link><Link className="btn" href="/seller">Post a Product</Link></nav>
     </header>
     <main>
       <section className="hero">
@@ -55,7 +55,7 @@ export default function Home() {
 
         </div>
       </section>
-    <h2 id="listings">Latest shoe listings</h2>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap"}}><h2 id="listings">Latest shoe listings</h2><Link className="btn secondary" href="/sellers">Find Sellers</Link></div>
       <div className="toolbar">
         <span className="muted">Category</span>
         <select value={category} onChange={e => setCategory(e.target.value)}>
