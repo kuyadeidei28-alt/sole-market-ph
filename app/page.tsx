@@ -140,16 +140,30 @@ export default function Home() {
                     {p.image_url ? <img className="product-photo" src={p.image_url} alt={p.title} /> : <div className="product-photo-placeholder">👟</div>}
                     <span className="approved-pill">✓ Approved</span>
                   </div>
-                  <div className="product-info">
+                  <div className="product-info product-info-compact">
                     <p className="product-brand">{p.brand || p.category || "SHOES"}</p>
                     <h3>{p.title}</h3>
-                    {p.size && <p className="product-size">Size: {p.size}</p>}
-                    <div className="product-bottom">
+                    {p.size && <p className="product-size product-size-pill">Size: {p.size}</p>}
+                    <div className="product-bottom product-bottom-compact">
                       <div><span className="price-label">PRICE</span><p className="product-price">₱{Number(p.price).toLocaleString("en-PH")}</p></div>
                       <span className="seller-label">{p.seller_name || "Marketplace seller"}</span>
                     </div>
-                    {p.description && <p className="product-description">{p.description}</p>}
-                    {p.messenger_url ? <a className="message-seller-btn" href={p.messenger_url} target="_blank" rel="noopener noreferrer">Message Seller <span>↗</span></a> : <Link className="message-seller-btn" href="/sellers">Find Seller <span>→</span></Link>}
+                    {p.messenger_url && (
+                      <>
+                        <a className="messenger-url" href={p.messenger_url} target="_blank" rel="noopener noreferrer" title={p.messenger_url}>
+                          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.6 13.4a4 4 0 0 0 5.7 0l3.1-3.1a4 4 0 0 0-5.7-5.7l-1.8 1.8M13.4 10.6a4 4 0 0 0-5.7 0l-3.1 3.1a4 4 0 0 0 5.7 5.7l1.8-1.8" /></svg>
+                          <span>{p.messenger_url}</span>
+                        </a>
+                        <a className="message-seller-btn message-seller-btn-messenger" href={p.messenger_url} target="_blank" rel="noopener noreferrer">
+                          <svg className="messenger-logo" viewBox="0 0 32 32" aria-hidden="true">
+                            <path fill="currentColor" d="M16 2.5C8.1 2.5 2 8.2 2 15.5c0 4 1.8 7.4 4.8 9.7v4.3l4.4-2.4c1.5.4 3.1.7 4.8.7 7.9 0 14-5.7 14-13S23.9 2.5 16 2.5Z"/>
+                            <path fill="#075CE5" d="m8.2 19.2 6.2-6.6 3.7 3 5.7-3-6.2 6.6-3.7-3z"/>
+                          </svg>
+                          <span>Message Seller</span><span className="message-arrow">↗</span>
+                        </a>
+                      </>
+                    )}
+                    {!p.messenger_url && <Link className="message-seller-btn" href="/sellers">Find Seller <span>→</span></Link>}
                   </div>
                 </article>
               ))}
@@ -157,6 +171,34 @@ export default function Home() {
           )}
         </section>
       </main>
+
+
+<style jsx>{`
+  .product-info-compact { padding: 13px 14px 14px; }
+  .product-info-compact .product-brand { margin-bottom: 3px; font-size: 10px; }
+  .product-info-compact h3 { min-height: 0; margin: 0 0 8px; font-size: 17px; line-height: 1.2; letter-spacing: -.25px; }
+  .product-size-pill { display: inline-flex; align-items: center; margin: 0 0 9px; padding: 6px 10px; border-radius: 9px; background: #F0F1F3; color: #202633; font-size: 12px; font-weight: 700; }
+  .product-bottom-compact { align-items: center; padding-top: 9px; margin-top: 2px; border-top: 1px solid #E8EBF0; }
+  .product-bottom-compact .price-label { font-size: 9px; }
+  .product-bottom-compact .product-price { margin-top: 1px; font-size: 23px; line-height: 1.1; white-space: nowrap; }
+  .product-bottom-compact .seller-label { max-width: 46%; color: #263044; font-size: 11px; font-weight: 900; text-transform: uppercase; }
+  .messenger-url { display: flex; align-items: center; gap: 8px; min-width: 0; margin-top: 10px; padding: 9px 10px; border-radius: 10px; background: #F0F1F3; color: #202633; font-size: 11px; line-height: 1.2; }
+  .messenger-url svg { flex: 0 0 19px; width: 19px; height: 19px; fill: none; stroke: #075CE5; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .messenger-url span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .message-seller-btn-messenger { min-height: 43px; margin-top: 9px; padding: 9px 10px; border-radius: 10px; font-size: 13px; gap: 8px; }
+  .messenger-logo { flex: 0 0 23px; width: 23px; height: 23px; }
+  .message-arrow { font-size: 17px; line-height: 1; }
+  .approved-pill { padding: 7px 11px; font-size: 10px; text-transform: uppercase; }
+  @media (max-width: 640px) {
+    .product-info-compact { padding: 10px; }
+    .product-info-compact h3 { font-size: 14px; }
+    .product-bottom-compact .product-price { font-size: 19px; }
+    .product-bottom-compact .seller-label { font-size: 9px; }
+    .messenger-url { gap: 6px; padding: 8px; font-size: 9px; }
+    .message-seller-btn-messenger { min-height: 39px; font-size: 11px; }
+    .messenger-logo { flex-basis: 20px; width: 20px; height: 20px; }
+  }
+`}</style>
 
       <footer className="site-footer"><div className="footer-inner"><Link className="brand footer-brand" href="/"><span className="brand-mark">S</span><span>SOLE MARKET <b>PH</b></span></Link><span>Connecting shoe buyers and sellers across the Philippines.</span><span>© {new Date().getFullYear()} SOLE MARKET PH</span></div></footer>
     </>
