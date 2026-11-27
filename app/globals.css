@@ -184,3 +184,39 @@ button:not(.clear-search), .top .btn { background:var(--blue); color:white; bord
   .message-seller-btn { font-size:10px; padding:10px 6px; }
   .footer-inner { align-items:flex-start; flex-direction:column; padding:20px 16px; }
 }
+
+
+/* Mobile layout polish: keep navigation, hero fields and cards aligned */
+html, body { width:100%; overflow-x:hidden; }
+main { width:100%; min-width:0; }
+.top { min-width:0; flex-wrap:wrap; padding:16px max(4vw,16px); }
+.top > .brand { flex:0 0 auto; }
+.top nav { min-width:0; display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:12px 18px; }
+.top nav a { white-space:nowrap; font-size:13px; }
+.hero input, .hero textarea, .hero select { display:block; width:100%; max-width:560px; min-width:0; }
+.hero { min-width:0; }
+@media (max-width:700px) {
+  .top { display:grid; grid-template-columns:minmax(0,1fr); justify-items:stretch; gap:12px; padding:14px 16px; }
+  .top > .brand { justify-self:start; font-size:16px; }
+  .top nav { width:100%; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; justify-content:stretch; }
+  .top nav a { display:flex; align-items:center; justify-content:center; min-height:42px; padding:9px 10px; border:1px solid var(--line); border-radius:9px; text-align:center; white-space:normal; font-size:12px; line-height:1.25; }
+  .top nav a.btn { grid-column:1 / -1; min-height:44px; }
+  main { padding:22px 16px 48px; }
+  .hero:not(.hero-modern) { width:100%; margin:0 0 24px; padding:30px 22px; border-radius:18px; }
+  .hero:not(.hero-modern) h1 { max-width:100%; font-size:clamp(29px,8vw,40px); line-height:1.18; overflow-wrap:normal; }
+  .hero:not(.hero-modern) p { max-width:100%; font-size:14px; line-height:1.65; }
+  .hero input, .hero textarea, .hero select { width:100%; max-width:100%; min-width:0; min-height:48px; font-size:14px; }
+  main > h2 { margin:0 0 16px; font-size:25px; line-height:1.2; }
+  .grid { grid-template-columns:minmax(0,1fr); gap:13px; }
+  .card { width:100%; min-width:0; padding:18px !important; border-radius:15px; }
+  .card h2 { font-size:21px; line-height:1.25; overflow-wrap:anywhere; }
+  .card p { line-height:1.55; overflow-wrap:anywhere; }
+  .card .btn { width:100%; text-align:center; }
+  .panel { width:100%; padding:20px; }
+  .toolbar { align-items:stretch; }
+  .toolbar select { flex:1 1 100%; width:100%; }
+}
+@media (min-width:701px) and (max-width:900px) {
+  .top { align-items:flex-start; }
+  .top nav { flex:1 1 100%; justify-content:flex-start; }
+}
