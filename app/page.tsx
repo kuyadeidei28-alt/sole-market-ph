@@ -124,7 +124,7 @@ export default function Home() {
       </div>
 
       <main className="home-main">
-        <section className="hero hero-modern" style={{ backgroundImage: "linear-gradient(90deg, rgba(3,6,13,.97) 0%, rgba(3,6,13,.88) 43%, rgba(3,6,13,.28) 100%), url('/sole-market-hero.webp')", backgroundSize: "cover", backgroundPosition: "center 42%" }}>
+        <section className="hero hero-modern" style={{ backgroundImage: "linear-gradient(90deg, rgba(3,6,13,.72) 0%, rgba(3,6,13,.55) 43%, rgba(3,6,13,.18) 100%), url('/sole-market-hero.webp')", backgroundSize: "cover", backgroundPosition: "center 42%" }}>
           <div className="hero-copy">
             <span className="eyebrow"><span className="eyebrow-dot" /> THE PHILIPPINES’ SNEAKER MARKETPLACE</span>
             <h1>Find your next<br /><span>favorite pair.</span></h1>
@@ -141,22 +141,7 @@ export default function Home() {
               <a href="#listings" className="hero-search-submit" aria-label="View search results">Search <span aria-hidden="true">→</span></a>
             </div>
           </div>
-          <div className="hero-art" aria-hidden="true">
-            <div className="hero-circle circle-one" />
-            <div className="hero-circle circle-two" />
-            <svg className="hero-sneaker" viewBox="0 0 520 300" role="presentation">
-              <defs><linearGradient id="shoeBody" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#f4f6fa"/><stop offset="1" stopColor="#7e8794"/></linearGradient></defs>
-              <path d="M55 194 Q95 180 130 142 L178 62 Q195 34 225 52 L286 100 Q319 121 365 135 L447 166 Q475 180 484 218 L478 242 Q460 263 416 264 L100 264 Q55 259 40 232 Q32 211 55 194Z" fill="url(#shoeBody)" stroke="#d7deea" strokeWidth="8"/>
-              <path d="M178 63 Q205 106 248 139 L330 173 L442 205 Q462 211 478 231 L477 245 Q460 262 416 264 L100 264 Q55 259 40 232 L44 214 Q100 220 137 191Z" fill="#151922"/>
-              <path d="M82 230 Q206 246 469 237" stroke="#fff" strokeWidth="9" fill="none"/>
-              <path d="M178 66 L228 104 L268 138 L310 161" stroke="#0a0d13" strokeWidth="12" fill="none"/>
-              <path d="M195 89 L254 129 M214 73 L274 116 M237 63 L294 103" stroke="#f5f7fb" strokeWidth="8" strokeLinecap="round"/>
-              <path d="M134 165 L180 190 L232 203" stroke="#0b0f18" strokeWidth="15" fill="none"/>
-              <path d="M60 210 Q92 196 124 207 L153 227" stroke="#c6cedb" strokeWidth="9" fill="none"/>
-              <path d="M270 178 Q333 202 415 220" stroke="#075CE5" strokeWidth="8" fill="none"/>
-            </svg>
-            <div className="hero-sticker">BUY · SELL · CONNECT</div>
-          </div>
+
         </section>
 
         <section className="listings-section" id="listings">
