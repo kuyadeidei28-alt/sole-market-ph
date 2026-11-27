@@ -17,15 +17,16 @@ export default function Dashboard() {
         return;
       }
 
-      const { data: { user }, error } =
-        await supabase.auth.getUser();
+      // Read the persisted local session first. A temporary network error while
+      // validating the user should not look like an intentional logout.
+      const { data: { session }, error } = await supabase.auth.getSession();
 
-      if (error || !user) {
+      if (error || !session?.user) {
         router.replace("/login");
         return;
       }
 
-      setEmail(user.email || "");
+      setEmail(session.user.email || "");
       setLoading(false);
     }
 
