@@ -27,9 +27,8 @@ const navigation = [
   ["⌂", "Dashboard", "/dashboard"],
   ["◇", "My Products", "/my-products"],
   ["＋", "Post a Product", "/seller"],
-  ["▤", "Orders", "/orders"],
-  ["✉", "Messages", "/messages"],
-  ["⚙", "Settings", "/settings"]
+  ["⚙", "Profile Settings", "/settings"],
+  ["⌕", "Seller Directory", "/sellers"]
 ];
 
 export default function MyProducts() {
