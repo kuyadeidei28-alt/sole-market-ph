@@ -30,6 +30,16 @@ create table if not exists public.direct_messages (
   created_at timestamptz not null default now()
 );
 
+create or replace function public.is_chat_member(p_conversation_id uuid)
+returns boolean
+language sql stable security definer set search_path = ''
+as $
+  select exists (select 1 from public.direct_conversation_members m
+    where m.conversation_id = p_conversation_id and m.user_id = auth.uid());
+$;
+revoke all on function public.is_chat_member(uuid) from public;
+grant execute on function public.is_chat_member(uuid) to authenticated;
+
 alter table public.community_messages enable row level security;
 alter table public.direct_conversations enable row level security;
 alter table public.direct_conversation_members enable row level security;
@@ -45,8 +55,7 @@ for insert to authenticated with check (auth.uid() = sender_id);
 drop policy if exists "Participants can read conversations" on public.direct_conversations;
 create policy "Participants can read conversations" on public.direct_conversations
 for select to authenticated using (
-  exists (select 1 from public.direct_conversation_members m
-          where m.conversation_id = id and m.user_id = auth.uid())
+  public.is_chat_member(id)
 );
 drop policy if exists "Users can create conversations" on public.direct_conversations;
 create policy "Users can create conversations" on public.direct_conversations
@@ -55,8 +64,7 @@ for insert to authenticated with check (auth.uid() = created_by);
 drop policy if exists "Members can see conversation members" on public.direct_conversation_members;
 create policy "Members can see conversation members" on public.direct_conversation_members
 for select to authenticated using (
-  exists (select 1 from public.direct_conversation_members mine
-          where mine.conversation_id = conversation_id and mine.user_id = auth.uid())
+  user_id = auth.uid()
 );
 drop policy if exists "Conversation creator can add participants" on public.direct_conversation_members;
 create policy "Conversation creator can add participants" on public.direct_conversation_members
@@ -69,8 +77,7 @@ for insert to authenticated with check (
 drop policy if exists "Participants can read direct messages" on public.direct_messages;
 create policy "Participants can read direct messages" on public.direct_messages
 for select to authenticated using (
-  exists (select 1 from public.direct_conversation_members m
-          where m.conversation_id = conversation_id and m.user_id = auth.uid())
+  public.is_chat_member(conversation_id)
 );
 drop policy if exists "Participants can send direct messages" on public.direct_messages;
 create policy "Participants can send direct messages" on public.direct_messages
