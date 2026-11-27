@@ -245,7 +245,7 @@ export default function Home() {
 
 <style jsx>{`
   .trust-ticker { width:100%; overflow:hidden; background:#075CE5; color:#fff; border-top:1px solid rgba(255,255,255,.16); border-bottom:1px solid #064fc5; }
-  .trust-ticker-track { display:flex; align-items:center; gap:34px; width:max-content; min-height:42px; padding-left:100%; white-space:nowrap; animation:soleTicker 85s linear infinite; }
+  .trust-ticker-track { display:flex; align-items:center; gap:34px; width:max-content; min-height:42px; padding-left:100%; white-space:nowrap; animation:soleTicker 32s linear infinite; }
   .trust-ticker-track span { flex:0 0 auto; font-size:11px; font-weight:800; letter-spacing:.055em; }
   .trust-ticker-track span::after { content:"•"; margin-left:34px; color:#bfdbfe; }
   .trust-ticker:hover .trust-ticker-track { animation-play-state:paused; }
