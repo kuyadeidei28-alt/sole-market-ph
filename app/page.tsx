@@ -97,7 +97,6 @@ export default function Home() {
         </section>
 
         <section className="quick-links" aria-label="Marketplace features">
-          <Link className="quick-card" href="/"><span className="quick-icon">⌕</span><span><b>Browse Shoes</b><small>Find your next pair</small></span><span className="quick-arrow">→</span></Link>
           <Link className="quick-card" href="/seller"><span className="quick-icon">＋</span><span><b>Start Selling</b><small>Post your shoe listings</small></span><span className="quick-arrow">→</span></Link>
           <Link className="quick-card" href="/community"><span className="quick-icon">◎</span><span><b>Join Community</b><small>Connect with shoe lovers</small></span><span className="quick-arrow">→</span></Link>
         </section>
