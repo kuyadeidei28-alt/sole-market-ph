@@ -420,6 +420,7 @@ export default function AdminDashboard() {
             </button>
 
             <Link href="/admin/referrals">Referral Management</Link>
+            <Link href="/admin/verifications">Seller Verifications</Link>
             <Link href="/dashboard">Seller Dashboard</Link>
           </div>
         </header>
