@@ -87,6 +87,12 @@ export default function Dashboard() {
             </div>
 
             <div className="card">
+              <h2>Seller Verification</h2>
+              <p className="muted">Submit your ID and, for Business/Page Sellers, business registration documents.</p>
+              <Link className="btn" href="/verification">VERIFY SELLER ACCOUNT</Link>
+            </div>
+
+            <div className="card">
               <h2>Post a Product</h2>
               <p className="muted">
                 Add a new product to the marketplace.
