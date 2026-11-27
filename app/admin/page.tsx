@@ -421,6 +421,7 @@ export default function AdminDashboard() {
 
             <Link href="/admin/referrals">Referral Management</Link>
             <Link href="/admin/verifications">Seller Verifications</Link>
+            <Link href="/admin/reports">Reports</Link>
             <Link href="/dashboard">Seller Dashboard</Link>
           </div>
         </header>
