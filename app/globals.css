@@ -31,3 +31,6 @@ button, .btn { background:#e3343f; color:white; border:0; border-radius:10px; pa
 .notice { background:#fff7df; border:1px solid #f2df9b; padding:12px; border-radius:10px; color:#665019; line-height:1.5; }
 footer { text-align:center; color:#77839a; padding:25px; font-size:13px; }
 @media(max-width:600px){ .top { align-items:flex-start; flex-direction:column; } nav { flex-wrap:wrap; } .hero { padding:30px 22px; } }
+
+.searchrow .btn { background:#075CE5; color:#FFFFFF; }
+.searchrow .btn:hover { background:#064FC4; color:#FFFFFF; }
