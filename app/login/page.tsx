@@ -33,6 +33,7 @@ export default function Login() {
     }
 
     setBusy(true);
+    setMessage("");
 
     const { error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
@@ -68,8 +69,8 @@ export default function Login() {
       email: email.trim(),
       password,
       options: {
-        data: inviteCode
-          ? { referral_code: inviteCode }
+        data: inviteCode.trim()
+          ? { referral_code: inviteCode.trim().toUpperCase() }
           : {},
       },
     });
@@ -107,30 +108,53 @@ export default function Login() {
 
           {inviteCode && (
             <p className="notice" role="status">
-              You joined through an invitation link!
+              Invitation code detected. Your referral code is pre-filled.
             </p>
           )}
 
           <form onSubmit={submit}>
             <div className="field">
-              <label>Email</label>
+              <label htmlFor="email">Email</label>
               <input
+                id="email"
                 type="email"
                 required
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
             <div className="field">
-              <label>Password</label>
+              <label htmlFor="password">Password</label>
               <input
+                id="password"
                 type="password"
                 required
                 minLength={6}
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+            </div>
+
+            <div className="field">
+              <label htmlFor="referralCode">
+                Referral code (optional)
+              </label>
+              <input
+                id="referralCode"
+                type="text"
+                autoComplete="off"
+                placeholder="Enter a referral code if you have one"
+                value={inviteCode}
+                onChange={(e) =>
+                  setInviteCode(e.target.value.toUpperCase())
+                }
+              />
+              <small>
+                You can register without a referral code.
+              </small>
             </div>
 
             <button type="submit" disabled={busy}>
