@@ -9,6 +9,8 @@ export default function Seller() {
   const [title, setTitle] = useState("");
   const [brand, setBrand] = useState("");
   const [category, setCategory] = useState("Sneakers");
+  const [listingType, setListingType] = useState<"on_hand" | "pre_order">("on_hand");
+  const [estimatedArrival, setEstimatedArrival] = useState("");
   const [size, setSize] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
@@ -140,6 +142,8 @@ export default function Seller() {
         title: title.trim(),
         brand: brand.trim() || null,
         category,
+        listing_type: listingType,
+        estimated_arrival: listingType === "pre_order" && estimatedArrival ? estimatedArrival : null,
         size: size.trim() || null,
         price: Number(price),
         description: description.trim() || null,
@@ -177,6 +181,8 @@ export default function Seller() {
       setTitle("");
       setBrand("");
       setCategory("Sneakers");
+      setListingType("on_hand");
+      setEstimatedArrival("");
       setSize("");
       setPrice("");
       setDescription("");
@@ -233,6 +239,32 @@ export default function Seller() {
                 placeholder="e.g. Running shoes size 9"
               />
             </div>
+
+            <div className="field">
+              <label>Listing type *</label>
+              <select
+                required
+                value={listingType}
+                onChange={e => setListingType(e.target.value as "on_hand" | "pre_order")}
+              >
+                <option value="on_hand">On-Hand — Ready stock</option>
+                <option value="pre_order">Pre-Order — Advance order</option>
+              </select>
+              <small>Pre-order listings can be submitted for review but will remain hidden from buyers until the Pre-Order section launches.</small>
+            </div>
+
+            {listingType === "pre_order" && (
+              <div className="field">
+                <label>Estimated arrival date (ETA) *</label>
+                <input
+                  required
+                  type="date"
+                  value={estimatedArrival}
+                  onChange={e => setEstimatedArrival(e.target.value)}
+                  min={new Date().toISOString().slice(0, 10)}
+                />
+              </div>
+            )}
 
             <div className="field">
               <label>Brand</label>
