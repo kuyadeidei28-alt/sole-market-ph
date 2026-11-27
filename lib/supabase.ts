@@ -3,11 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Explicitly persist browser sessions in localStorage so route changes and
-// full page navigations on the same domain keep the seller signed in.
-const browserStorage =
-  typeof window !== "undefined" ? window.localStorage : undefined;
-
+// Use Supabase's built-in browser storage detection. It selects localStorage
+// in the browser and keeps the same project-scoped auth key on every route.
 export const supabase =
   url && anonKey
     ? createClient(url, anonKey, {
@@ -15,8 +12,7 @@ export const supabase =
           persistSession: true,
           autoRefreshToken: true,
           detectSessionInUrl: true,
-          flowType: "pkce",
-          storage: browserStorage,
+          storageKey: "sole-market-ph-auth",
         },
       })
     : null;
