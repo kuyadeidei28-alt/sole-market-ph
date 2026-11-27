@@ -28,7 +28,13 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState("newest");
   const [heroSlide, setHeroSlide] = useState(0);
-  const heroImages = ["/sole-hero-1.jpg","/sole-hero-2.jpg","/sole-hero-3.jpg","/sole-hero-4.jpg","/sole-hero-5.jpg"];
+  const heroImages = [
+    "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=1600&q=85",
+    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1600&q=85",
+    "https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?auto=format&fit=crop&w=1600&q=85",
+    "https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=1600&q=85",
+    "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1600&q=85"
+  ];
   useEffect(() => { const timer = window.setInterval(() => setHeroSlide(v => (v + 1) % heroImages.length), 3000); return () => window.clearInterval(timer); }, []);
 
   useEffect(() => {
