@@ -35,18 +35,29 @@ export default function Login() {
     setBusy(true);
     setMessage("");
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
 
-    setBusy(false);
-
     if (error) {
+      setBusy(false);
       setMessage(error.message);
-    } else {
-      router.push("/dashboard");
+      return;
     }
+
+    // Confirm the session is available in persistent browser storage before
+    // navigating away from the login page.
+    const { data: persisted } = await supabase.auth.getSession();
+    if (!persisted.session?.user && !data.session?.user) {
+      setBusy(false);
+      setMessage("Login succeeded but the session was not saved. Please try again.");
+      return;
+    }
+
+    setBusy(false);
+    router.replace("/dashboard");
+    router.refresh();
   }
 
   async function signup() {
