@@ -64,10 +64,8 @@ export default function Seller() {
     setSubmitting(true);
 
     try {
-      const {
-        data: { user },
-        error: authError
-      } = await supabase.auth.getSession();
+      const { data: auth, error: authError } = await supabase.auth.getSession();
+      const user = auth.session?.user;
 
       if (authError || !user) {
         setMessage("Please log in first at the Seller Login page.");
