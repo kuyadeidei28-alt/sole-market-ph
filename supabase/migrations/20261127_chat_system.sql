@@ -149,3 +149,10 @@ $$;
 
 revoke all on function public.start_direct_conversation(uuid) from public;
 grant execute on function public.start_direct_conversation(uuid) to authenticated;
+
+
+-- Only the SECURITY DEFINER RPC may create membership rows. This prevents
+-- authenticated users from adding arbitrary people to conversations.
+drop policy if exists "Conversation creator can add participants" on public.direct_conversation_members;
+revoke insert on public.direct_conversation_members from authenticated;
+revoke insert on public.direct_conversations from authenticated;
