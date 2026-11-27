@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
 type Product = {
   id: string; title: string; brand: string | null; category: string | null;
   size: string | null; price: number; description: string | null;
-  image_url: string | null; messenger_url: string; seller_name: string | null;
+  image_url: string | null; messenger_url: string; seller_name: string | null; created_at?: string;
 };
 
 export default function Home() {
@@ -15,6 +15,7 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [sort, setSort] = useState("newest");
 
   useEffect(() => {
     async function load() {
@@ -30,7 +31,11 @@ export default function Home() {
     const matchesText = `${p.title} ${p.brand || ""} ${p.description || ""}`.toLowerCase().includes(query.toLowerCase());
     const matchesCategory = category === "All" || p.category === category;
     return matchesText && matchesCategory;
-  }), [products, query, category]);
+  }).sort((a, b) => {
+    if (sort === "price-low") return Number(a.price) - Number(b.price);
+    if (sort === "price-high") return Number(b.price) - Number(a.price);
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+  }), [products, query, category, sort]);
 
   return <>
     <header className="top">
@@ -61,7 +66,7 @@ export default function Home() {
         <select value={category} onChange={e => setCategory(e.target.value)}>
           <option>All</option><option>Sneakers</option><option>Running</option><option>Casual</option><option>Formal</option><option>Sandals</option><option>Others</option>
         </select>
-        <span className="muted">{filtered.length} listings</span>
+        <label className="muted" htmlFor="sort-listings">Sort</label><select id="sort-listings" value={sort} onChange={e=>setSort(e.target.value)}><option value="newest">Newest first</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option></select><span className="muted">{filtered.length} listings</span>
       </div>
       {!supabase && <div className="notice">Connect your Supabase project by creating a .env.local file. See README.md for setup instructions.</div>}
       {loading ? <p>Loading listings...</p> : filtered.length === 0 ? <div className="panel"><h3>No approved listings yet</h3><p className="muted">When sellers submit products and an administrator approves them, they will appear here.</p></div> :
