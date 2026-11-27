@@ -47,10 +47,10 @@ export default function AdminReferralsPage() {
     setLoading(true);
     setError("");
 
-    const { data: auth, error: authError } =
-      await client.auth.getUser();
+    const { data: auth } =
+      await client.auth.getSession();
 
-    if (authError || !auth.user) {
+    if (!auth.session?.user) {
       router.replace("/login");
       return;
     }
