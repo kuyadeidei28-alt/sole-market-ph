@@ -25,7 +25,7 @@ export default function SellerSettingsPage() {
       const { data, error: profileError } = await supabase
         .from("profiles")
         .select("display_name,location,bio,messenger_url")
-        .eq("id", auth.user.id)
+        .eq("id", auth.session?.user.id)
         .maybeSingle();
       if (!alive) return;
       if (profileError) setError(profileError.message);
@@ -44,8 +44,8 @@ export default function SellerSettingsPage() {
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!supabase) return;
-    const { data: auth } = await supabase.auth.getUser();
-    if (!auth.user) { router.replace("/login"); return; }
+    const { data: auth } = await supabase.auth.getSession();
+    if (!auth.session?.user) { router.replace("/login"); return; }
     if (messengerUrl.trim()) {
       try {
         const url = new URL(messengerUrl.trim());
@@ -57,7 +57,7 @@ export default function SellerSettingsPage() {
     }
     setSaving(true); setError(""); setMessage("");
     const { error: saveError } = await supabase.from("profiles").upsert({
-      id: auth.user.id,
+      id: auth.session?.user.id,
       display_name: displayName.trim() || null,
       location: location.trim() || null,
       bio: bio.trim() || null,
