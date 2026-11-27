@@ -16,6 +16,8 @@ type Product = {
   image_url: string | null;
   messenger_url: string;
   seller_name: string | null;
+  listing_type?: string | null;
+  estimated_arrival?: string | null;
   created_at?: string;
 };
 
@@ -29,7 +31,7 @@ export default function Home() {
   useEffect(() => {
     async function load() {
       if (!supabase) { setLoading(false); return; }
-      const { data } = await supabase.from("products").select("*").eq("status", "approved").order("created_at", { ascending: false });
+      const { data } = await supabase.from("products").select("*").eq("status", "approved").eq("listing_type", "on_hand").order("created_at", { ascending: false });
       setProducts((data || []) as Product[]);
       setLoading(false);
     }
@@ -108,7 +110,7 @@ export default function Home() {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" }); }}
-                placeholder="Search shoes, brands, or keywords..."
+                placeholder="Search on-hand shoes (e.g., Nike, Jordan, Adidas)..."
                 aria-label="Search shoes, brands, or keywords"
               />
               <a href="#listings" className="hero-search-submit" aria-label="View search results">Search <span aria-hidden="true">→</span></a>
@@ -135,13 +137,24 @@ export default function Home() {
         <section className="listings-section" id="listings">
           <div className="section-heading">
             <div>
-              <span className="section-kicker">FIND YOUR NEXT PAIR</span>
-              <h2>Browse Listings</h2>
-              <p>Explore the latest shoes posted by marketplace sellers.</p>
+              <span className="section-kicker">SOLE MARKET PH</span>
+              <h2>Marketplace</h2>
+              <p>Browse ready-stock shoes and connect directly with sellers.</p>
             </div>
             <Link className="text-link" href="/sellers">View Seller Directory <span>→</span></Link>
           </div>
 
+          <div className="listing-type-tabs" aria-label="Listing type">
+            <div className="listing-type-tab listing-type-tab-active" aria-current="page">
+              <span className="listing-tab-icon" aria-hidden="true">👟</span>
+              <span className="listing-tab-copy"><strong>On-Hand Shoes</strong><small>Ready stocks · Available now</small></span>
+            </div>
+            <div className="listing-type-tab listing-type-tab-disabled" aria-disabled="true">
+              <span className="listing-tab-icon" aria-hidden="true">▣</span>
+              <span className="listing-tab-copy"><strong>Pre-Order Shoes <em>COMING SOON</em></strong><small>For advance order · With ETA</small></span>
+              <span className="listing-tab-lock" aria-hidden="true">🔒</span>
+            </div>
+          </div>
           <div className="search-panel">
             <div className="searchrow searchrow-modern">
               <span className="search-icon" aria-hidden="true">⌕</span>
@@ -162,14 +175,14 @@ export default function Home() {
 
           {!supabase && <div className="notice">Connect your Supabase project by creating a .env.local file. See README.md for setup instructions.</div>}
           {loading ? <div className="empty-state"><div className="loading-dot" /><p>Loading listings...</p></div> : filtered.length === 0 ? (
-            <div className="empty-state"><div className="empty-icon">👟</div><h3>{query ? "No shoes found" : "No approved listings yet"}</h3><p>{query ? "Try another shoe name, brand, or keyword." : "When sellers submit products and an administrator approves them, they will appear here."}</p>{query && <button className="btn" onClick={() => setQuery("")}>Clear Search</button>}</div>
+            <div className="empty-state"><div className="empty-icon">👟</div><h3>{query ? "No shoes found" : "No on-hand listings yet"}</h3><p>{query ? "Try another shoe name, brand, or keyword." : "When sellers submit products and an administrator approves them, they will appear here."}</p>{query && <button className="btn" onClick={() => setQuery("")}>Clear Search</button>}</div>
           ) : (
             <div className="product-grid">
               {filtered.map(p => (
                 <article className="product-card" key={p.id}>
                   <div className="product-photo-wrap">
                     {p.image_url ? <img className="product-photo" src={p.image_url} alt={p.title} /> : <div className="product-photo-placeholder">👟</div>}
-                    <span className="approved-pill">✓ Approved</span>
+                    <span className="approved-pill on-hand-pill">ON-HAND</span>
                   </div>
                   <div className="product-info product-info-compact">
                     <p className="product-brand">{p.brand || p.category || "SHOES"}</p>
@@ -206,6 +219,28 @@ export default function Home() {
 
 
 <style jsx>{`
+  .listing-type-tabs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:0 0 22px; }
+  .listing-type-tab { min-height:96px; display:flex; align-items:center; gap:16px; padding:16px 20px; border-radius:16px; border:1px solid #e2e8f0; }
+  .listing-type-tab-active { position:relative; color:#fff; background:#075CE5; border-color:#075CE5; box-shadow:0 8px 20px rgba(7,92,229,.15); }
+  .listing-type-tab-active:after { content:""; position:absolute; bottom:-9px; left:48%; width:18px; height:18px; background:#075CE5; transform:rotate(45deg); border-radius:2px; }
+  .listing-type-tab-disabled { color:#263244; background:#e9eef6; cursor:not-allowed; opacity:.9; }
+  .listing-tab-icon { flex:0 0 auto; font-size:32px; line-height:1; }
+  .listing-tab-copy { display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .listing-tab-copy strong { font-size:20px; line-height:1.15; }
+  .listing-tab-copy small { font-size:13px; opacity:.88; }
+  .listing-tab-copy em { display:inline-block; margin-left:6px; padding:4px 8px; border-radius:99px; background:#facc15; color:#111827; font-size:10px; font-style:normal; font-weight:900; white-space:nowrap; vertical-align:middle; }
+  .listing-tab-lock { margin-left:auto; font-size:20px; }
+  .on-hand-pill { background:#07983d; color:#fff; border-radius:99px; font-weight:800; letter-spacing:.2px; }
+  @media (max-width:640px) {
+    .listing-type-tabs { gap:10px; margin-bottom:18px; }
+    .listing-type-tab { min-height:112px; gap:9px; padding:12px 10px; border-radius:15px; align-items:center; }
+    .listing-tab-icon { font-size:26px; }
+    .listing-tab-copy { gap:7px; }
+    .listing-tab-copy strong { font-size:15px; line-height:1.15; }
+    .listing-tab-copy small { font-size:11px; line-height:1.25; }
+    .listing-tab-copy em { display:table; margin:4px 0 0; font-size:9px; }
+    .listing-tab-lock { font-size:15px; align-self:flex-start; }
+  }
   .report-listing-btn { display:block; margin:9px auto 0; padding:5px 8px; border:0; background:transparent; color:#64748b; font-size:11px; text-decoration:underline; cursor:pointer; }
   .hero-searchbar { display: flex; align-items: center; gap: 12px; width: min(100%, 590px); min-height: 64px; margin-top: 27px; padding: 8px 9px 8px 20px; border: 1px solid rgba(255,255,255,.2); border-radius: 16px; background: #075CE5; box-shadow: 0 12px 30px rgba(7,92,229,.24); }
   .hero-search-icon { flex: 0 0 auto; color: #fff; font-size: 31px; line-height: 1; }
