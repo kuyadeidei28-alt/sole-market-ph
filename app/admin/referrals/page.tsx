@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -32,6 +33,7 @@ export default function AdminReferralsPage() {
   const [periodStart, setPeriodStart] = useState("");
   const [periodEnd, setPeriodEnd] = useState("");
   const [references, setReferences] = useState<Record<string, string>>({});
+  const [initialInviteUrl, setInitialInviteUrl] = useState("");
 
   const loadData = useCallback(async () => {
     const client = supabase;
@@ -88,6 +90,79 @@ export default function AdminReferralsPage() {
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  function makeInviteUrl(token: string) {
+    return `${window.location.origin}/login?invite=${encodeURIComponent(token)}`;
+  }
+
+  async function copyInviteUrl(url: string) {
+    try {
+      await navigator.clipboard.writeText(url);
+      setMessage("Invitation link copied. You can now share it.");
+      setError("");
+    } catch {
+      setError("Unable to copy automatically. Please select and copy the invitation link.");
+    }
+  }
+
+  async function createInitialInvite() {
+    const client = supabase;
+    if (!client) return;
+
+    if (!window.confirm("Create the initial invitation link for your first referral partner?")) {
+      return;
+    }
+
+    setBusy("initial-invite");
+    setError("");
+    setMessage("");
+
+    const { data, error: rpcError } = await client.rpc("admin_create_referral_invite");
+
+    if (rpcError) {
+      setError(rpcError.message);
+    } else if (typeof data !== "string" || !data) {
+      setError("The invitation was created, but no token was returned. Refresh and check before creating another.");
+    } else {
+      const url = makeInviteUrl(data);
+      setInitialInviteUrl(url);
+      setMessage("Initial invitation link created successfully.");
+    }
+
+    setBusy("");
+  }
+
+  async function issuePartnerInvite(partner: Partner) {
+    const client = supabase;
+    if (!client) return;
+
+    const partnerName = partner.display_name || partner.email || "this seller";
+    if (!window.confirm(`Enable referral privileges and create an invitation link for ${partnerName}?`)) {
+      return;
+    }
+
+    setBusy(partner.user_id);
+    setError("");
+    setMessage("");
+
+    const { data, error: rpcError } = await client.rpc(
+      "admin_issue_partner_invite",
+      { p_referrer_id: partner.user_id }
+    );
+
+    if (rpcError) {
+      setError(rpcError.message);
+    } else if (typeof data !== "string" || !data) {
+      setError("The invitation was created, but no token was returned. Refresh and check before creating another.");
+    } else {
+      const url = makeInviteUrl(data);
+      setMessage(`Invitation link created for ${partnerName}.`);
+      await copyInviteUrl(url);
+      await loadData();
+    }
+
+    setBusy("");
+  }
 
   async function updateRate(partner: Partner) {
     const client = supabase;
@@ -296,6 +371,40 @@ export default function AdminReferralsPage() {
         <section style={styles.card}>
           <h2>Referral Partners</h2>
 
+          <div style={styles.invitePanel}>
+            <p>
+              <strong>Initial Partner Invitation</strong>
+            </p>
+            <p style={styles.muted}>
+              Create this link for your first invited partner. The person who signs up
+              through it becomes eligible to invite their own direct referrals.
+            </p>
+            <button
+              style={styles.button}
+              disabled={busy !== ""}
+              onClick={() => void createInitialInvite()}
+            >
+              {busy === "initial-invite" ? "Creating..." : "Create Initial Invitation Link"}
+            </button>
+            {initialInviteUrl && (
+              <div style={styles.inviteLinkBox}>
+                <input
+                  type="text"
+                  readOnly
+                  value={initialInviteUrl}
+                  onFocus={(e) => e.currentTarget.select()}
+                  style={styles.input}
+                />
+                <button
+                  style={styles.secondaryButton}
+                  onClick={() => void copyInviteUrl(initialInviteUrl)}
+                >
+                  Copy Link
+                </button>
+              </div>
+            )}
+          </div>
+
           {partners.length === 0 ? (
             <p>No referral partners found.</p>
           ) : (
@@ -311,9 +420,30 @@ export default function AdminReferralsPage() {
                 <p>{partner.email || "No email"}</p>
 
                 <p>
-                  <strong>Referral Code:</strong>{" "}
-                  {partner.referral_code || "Not assigned"}
+                  <strong>Invitation Link:</strong>{" "}
+                  {partner.referral_code
+                    ? `${typeof window !== "undefined" ? window.location.origin : ""}/login?invite=${encodeURIComponent(partner.referral_code)}`
+                    : "Not assigned"}
                 </p>
+                {partner.referral_code && (
+                  <button
+                    style={styles.secondaryButton}
+                    onClick={() =>
+                      void copyInviteUrl(makeInviteUrl(partner.referral_code!))
+                    }
+                  >
+                    Copy Invitation Link
+                  </button>
+                )}
+                <button
+                  style={{ ...styles.button, marginTop: 10 }}
+                  disabled={busy !== ""}
+                  onClick={() => void issuePartnerInvite(partner)}
+                >
+                  {busy === partner.user_id
+                    ? "Creating..."
+                    : "Issue / Renew Invitation Link"}
+                </button>
 
                 <p>
                   <strong>Direct Referrals:</strong>{" "}
@@ -496,6 +626,21 @@ const styles: Record<string, React.CSSProperties> = {
     borderTop: "1px solid #e5e7eb",
     padding: "20px 0",
     overflowWrap: "anywhere",
+  },
+  invitePanel: {
+    background: "#eff6ff",
+    border: "1px solid #bfdbfe",
+    borderRadius: 10,
+    padding: 16,
+    marginTop: 14,
+    marginBottom: 18,
+  },
+  inviteLinkBox: {
+    display: "flex",
+    alignItems: "end",
+    flexWrap: "wrap",
+    gap: 10,
+    marginTop: 10,
   },
   rateRow: {
     display: "flex",
