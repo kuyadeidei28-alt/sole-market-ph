@@ -124,7 +124,7 @@ export default function Home() {
       </div>
 
       <main className="home-main">
-        <section className="hero hero-modern">
+        <section className="hero hero-modern" style={{ backgroundImage: "linear-gradient(90deg, rgba(3,6,13,.97) 0%, rgba(3,6,13,.88) 43%, rgba(3,6,13,.28) 100%), url('/sole-market-hero.webp')", backgroundSize: "cover", backgroundPosition: "center 42%" }}>
           <div className="hero-copy">
             <span className="eyebrow"><span className="eyebrow-dot" /> THE PHILIPPINES’ SNEAKER MARKETPLACE</span>
             <h1>Find your next<br /><span>favorite pair.</span></h1>
