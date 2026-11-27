@@ -5,9 +5,17 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 type Product = {
-  id: string; title: string; brand: string | null; category: string | null;
-  size: string | null; price: number; description: string | null;
-  image_url: string | null; messenger_url: string; seller_name: string | null; created_at?: string;
+  id: string;
+  title: string;
+  brand: string | null;
+  category: string | null;
+  size: string | null;
+  price: number;
+  description: string | null;
+  image_url: string | null;
+  messenger_url: string;
+  seller_name: string | null;
+  created_at?: string;
 };
 
 export default function Home() {
@@ -28,7 +36,8 @@ export default function Home() {
   }, []);
 
   const filtered = useMemo(() => products.filter(p => {
-    const matchesText = `${p.title} ${p.brand || ""} ${p.description || ""}`.toLowerCase().includes(query.toLowerCase());
+    const searchable = `${p.title} ${p.brand || ""} ${p.description || ""} ${p.category || ""}`.toLowerCase();
+    const matchesText = searchable.includes(query.toLowerCase().trim());
     const matchesCategory = category === "All" || p.category === category;
     return matchesText && matchesCategory;
   }).sort((a, b) => {
@@ -37,121 +46,110 @@ export default function Home() {
     return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
   }), [products, query, category, sort]);
 
-  return <>
-    <header className="top">
-      <Link className="brand" href="/">SOLE MARKET PH</Link>
-      <nav><Link href="/">Marketplace</Link><Link href="/sellers">Seller Directory</Link><Link href="/community">Community</Link><Link href="/chat">Chat</Link><Link href="/login">Seller Login</Link><Link className="btn" href="/seller">Post a Product</Link></nav>
-    </header>
-    <main>
-      <section className="hero">
-        <h1>Find your next pair.</h1>
-        <p>Discover shoes from sellers around the Philippines. Browse listings and contact sellers directly through Messenger.</p>
-        <div className="searchrow">
-          <input
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            placeholder="Search shoes, brands, or keywords..."
-            aria-label="Search shoes, brands, or keywords"
-          />
-
+  return (
+    <>
+      <header className="site-header">
+        <div className="header-inner">
+          <Link className="brand" href="/" aria-label="Sole Market PH home">
+            <span className="brand-mark">S</span>
+            <span>SOLE MARKET <b>PH</b></span>
+          </Link>
+          <nav className="main-nav" aria-label="Main navigation">
+            <Link className="nav-active" href="/">Marketplace</Link>
+            <Link href="/sellers">Seller Directory</Link>
+            <Link href="/community">Community</Link>
+            <Link href="/chat">Chat</Link>
+          </nav>
+          <div className="header-actions">
+            <Link className="login-link" href="/login">Seller Login</Link>
+            <Link className="btn" href="/seller">+ Post a Product</Link>
+          </div>
         </div>
-      </section>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap"}}><h2 id="listings">Latest shoe listings</h2><Link className="btn secondary" href="/sellers">Find Sellers</Link></div>
-      <div className="toolbar">
-        <span className="muted">Category</span>
-        <select value={category} onChange={e => setCategory(e.target.value)}>
-          <option>All</option><option>Sneakers</option><option>Running</option><option>Casual</option><option>Formal</option><option>Sandals</option><option>Others</option>
-        </select>
-        <label className="muted" htmlFor="sort-listings">Sort</label><select id="sort-listings" value={sort} onChange={e=>setSort(e.target.value)}><option value="newest">Newest first</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option></select><span className="muted">{filtered.length} listings</span>
-      </div>
-      {!supabase && <div className="notice">Connect your Supabase project by creating a .env.local file. See README.md for setup instructions.</div>}
-      {loading ? <p>Loading listings...</p> : filtered.length === 0 ? <div className="panel"><h3>No approved listings yet</h3><p className="muted">When sellers submit products and an administrator approves them, they will appear here.</p></div> :
-        <div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-    gap: "20px",
-    marginTop: "20px"
-  }}
->
-  {filtered.map((p) => (
-    <article
-      key={p.id}
-      style={{
-        background: "#FFFFFF",
-        border: "1px solid #E2E8F0",
-        borderRadius: "16px",
-        padding: "14px",
-        boxShadow: "0 4px 14px rgba(0,0,0,0.06)"
-      }}
-    >
-      {p.image_url && (
-        <img
-          src={p.image_url}
-          alt={p.title}
-          style={{
-            width: "100%",
-            height: "220px",
-            objectFit: "contain",
-            background: "#F8FAFC",
-            borderRadius: "12px"
-          }}
-        />
-      )}
+      </header>
 
-      <div style={{
-        marginTop: "12px",
-        color: "#15803D",
-        fontWeight: "bold",
-        fontSize: "12px"
-      }}>
-        ✓ APPROVED LISTING
-      </div>
+      <main className="home-main">
+        <section className="hero hero-modern">
+          <div className="hero-copy">
+            <span className="eyebrow"><span className="eyebrow-dot" /> THE PHILIPPINES’ SNEAKER MARKETPLACE</span>
+            <h1>Find your next<br /><span>favorite pair.</span></h1>
+            <p>Discover shoes from sellers around the Philippines. Browse listings and connect directly with sellers.</p>
+            <div className="hero-ctas">
+              <a className="btn hero-btn" href="#listings">Browse Listings <span aria-hidden="true">↓</span></a>
+              <Link className="hero-secondary-link" href="/sellers">Explore Sellers <span aria-hidden="true">→</span></Link>
+            </div>
+          </div>
+          <div className="hero-art" aria-hidden="true">
+            <div className="hero-circle circle-one" />
+            <div className="hero-circle circle-two" />
+            <div className="hero-shoe">👟</div>
+            <div className="hero-sticker">BUY · SELL · CONNECT</div>
+          </div>
+        </section>
 
-      <h3 style={{ fontSize: "18px", fontWeight: "bold" }}>
-        {p.title}
-      </h3>
+        <section className="quick-links" aria-label="Marketplace features">
+          <Link className="quick-card" href="/"><span className="quick-icon">⌕</span><span><b>Browse Shoes</b><small>Find your next pair</small></span><span className="quick-arrow">→</span></Link>
+          <Link className="quick-card" href="/seller"><span className="quick-icon">＋</span><span><b>Start Selling</b><small>Post your shoe listings</small></span><span className="quick-arrow">→</span></Link>
+          <Link className="quick-card" href="/community"><span className="quick-icon">◎</span><span><b>Join Community</b><small>Connect with shoe lovers</small></span><span className="quick-arrow">→</span></Link>
+        </section>
 
-      <p style={{ color: "#64748B" }}>
-        {p.brand || "Brand not specified"}
-      </p>
+        <section className="listings-section" id="listings">
+          <div className="section-heading">
+            <div>
+              <span className="section-kicker">FIND YOUR NEXT PAIR</span>
+              <h2>Browse Listings</h2>
+              <p>Explore the latest shoes posted by marketplace sellers.</p>
+            </div>
+            <Link className="text-link" href="/sellers">View Seller Directory <span>→</span></Link>
+          </div>
 
-      <h2 style={{ color: "#075CE5", fontWeight: "bold" }}>
-        ₱{Number(p.price).toLocaleString("en-PH")}
-      </h2>
+          <div className="search-panel">
+            <div className="searchrow searchrow-modern">
+              <span className="search-icon" aria-hidden="true">⌕</span>
+              <input
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search shoes, brands, or keywords..."
+                aria-label="Search shoes, brands, or keywords"
+              />
+              {query && <button className="clear-search" type="button" onClick={() => setQuery("")} aria-label="Clear search">×</button>}
+            </div>
+            <div className="filter-row">
+              <label className="filter-control"><span>Category</span><select value={category} onChange={e => setCategory(e.target.value)}><option>All</option><option>Sneakers</option><option>Running</option><option>Casual</option><option>Formal</option><option>Sandals</option><option>Others</option></select></label>
+              <label className="filter-control"><span>Sort by</span><select id="sort-listings" value={sort} onChange={e => setSort(e.target.value)}><option value="newest">Newest first</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option></select></label>
+              <span className="listing-count">{filtered.length} {filtered.length === 1 ? "listing" : "listings"}</span>
+            </div>
+          </div>
 
-      <p style={{ color: "#2563EB", fontWeight: "bold" }}>
-        Seller: {p.seller_name || "Marketplace seller"}
-      </p>
+          {!supabase && <div className="notice">Connect your Supabase project by creating a .env.local file. See README.md for setup instructions.</div>}
+          {loading ? <div className="empty-state"><div className="loading-dot" /><p>Loading listings...</p></div> : filtered.length === 0 ? (
+            <div className="empty-state"><div className="empty-icon">👟</div><h3>{query ? "No shoes found" : "No approved listings yet"}</h3><p>{query ? "Try another shoe name, brand, or keyword." : "When sellers submit products and an administrator approves them, they will appear here."}</p>{query && <button className="btn" onClick={() => setQuery("")}>Clear Search</button>}</div>
+          ) : (
+            <div className="product-grid">
+              {filtered.map(p => (
+                <article className="product-card" key={p.id}>
+                  <div className="product-photo-wrap">
+                    {p.image_url ? <img className="product-photo" src={p.image_url} alt={p.title} /> : <div className="product-photo-placeholder">👟</div>}
+                    <span className="approved-pill">✓ Approved</span>
+                  </div>
+                  <div className="product-info">
+                    <p className="product-brand">{p.brand || p.category || "SHOES"}</p>
+                    <h3>{p.title}</h3>
+                    {p.size && <p className="product-size">Size: {p.size}</p>}
+                    <div className="product-bottom">
+                      <div><span className="price-label">PRICE</span><p className="product-price">₱{Number(p.price).toLocaleString("en-PH")}</p></div>
+                      <span className="seller-label">{p.seller_name || "Marketplace seller"}</span>
+                    </div>
+                    {p.description && <p className="product-description">{p.description}</p>}
+                    {p.messenger_url ? <a className="message-seller-btn" href={p.messenger_url} target="_blank" rel="noopener noreferrer">Message Seller <span>↗</span></a> : <Link className="message-seller-btn" href="/sellers">Find Seller <span>→</span></Link>}
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
 
-      {p.description && <p>{p.description}</p>}
-
-      {p.messenger_url && (
-        <a
-          href={p.messenger_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "block",
-            textAlign: "center",
-            background: "#075CE5",
-            color: "white",
-            padding: "12px",
-            borderRadius: "10px",
-            fontWeight: "bold",
-            textDecoration: "none"
-          }}
-        >
-          Message Seller
-        </a>
-      )}
-    </article>
-  ))}
-</div>
-      }
-
-
-    </main>
-    <footer>SOLE MARKET PH · A marketplace connecting shoe buyers and sellers</footer>
-  </>;
+      <footer className="site-footer"><div className="footer-inner"><Link className="brand footer-brand" href="/"><span className="brand-mark">S</span><span>SOLE MARKET <b>PH</b></span></Link><span>Connecting shoe buyers and sellers across the Philippines.</span><span>© {new Date().getFullYear()} SOLE MARKET PH</span></div></footer>
+    </>
+  );
 }
