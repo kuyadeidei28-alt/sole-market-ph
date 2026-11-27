@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 
 type Product = {
   id: string;
+  seller_id: string;
   title: string;
   brand: string | null;
   category: string | null;
@@ -34,6 +35,34 @@ export default function Home() {
     }
     load();
   }, []);
+
+
+  async function reportProduct(product: Product) {
+    if (!supabase) return;
+    const { data: auth } = await supabase.auth.getSession();
+    const user = auth.session?.user;
+    if (!user) {
+      window.alert("Please log in first to report a listing.");
+      window.location.href = "/login";
+      return;
+    }
+    if (user.id === product.seller_id) {
+      window.alert("You cannot report your own listing.");
+      return;
+    }
+    const choice = window.prompt("Report reason: 1 Counterfeit/Fake, 2 Scam Seller, 3 Misleading Listing, 4 Fake Photos, 5 Wrong Details, 6 Suspicious Activity, 7 Harassment, 8 Other. Enter 1-8:");
+    if (!choice) return;
+    const reasons: Record<string,string> = { "1":"counterfeit","2":"scam","3":"misleading_listing","4":"fake_photos","5":"wrong_details","6":"suspicious_activity","7":"harassment","8":"other" };
+    if (!reasons[choice]) { window.alert("Please choose a number from 1 to 8."); return; }
+    const details = window.prompt("Please explain the issue (at least 10 characters):");
+    if (!details || details.trim().length < 10) { window.alert("Please provide more details (at least 10 characters)."); return; }
+    const { error } = await supabase.from("marketplace_reports").insert({
+      reporter_id:user.id, product_id:product.id, seller_id:product.seller_id,
+      reason:reasons[choice], details:details.trim(), status:"pending"
+    });
+    if (error) window.alert("Unable to submit report: " + error.message);
+    else window.alert("Thank you. Your report has been submitted for admin review.");
+  }
 
   const filtered = useMemo(() => products.filter(p => {
     const searchable = `${p.title} ${p.brand || ""} ${p.description || ""} ${p.category || ""}`.toLowerCase();
@@ -166,6 +195,7 @@ export default function Home() {
                       </>
                     )}
                     {!p.messenger_url && <Link className="message-seller-btn" href="/sellers">Find Seller <span>→</span></Link>}
+                    <button type="button" className="report-listing-btn" onClick={() => void reportProduct(p)}>Report Listing</button>
                   </div>
                 </article>
               ))}
@@ -176,6 +206,7 @@ export default function Home() {
 
 
 <style jsx>{`
+  .report-listing-btn { display:block; margin:9px auto 0; padding:5px 8px; border:0; background:transparent; color:#64748b; font-size:11px; text-decoration:underline; cursor:pointer; }
   .hero-searchbar { display: flex; align-items: center; gap: 12px; width: min(100%, 590px); min-height: 64px; margin-top: 27px; padding: 8px 9px 8px 20px; border: 1px solid rgba(255,255,255,.2); border-radius: 16px; background: #075CE5; box-shadow: 0 12px 30px rgba(7,92,229,.24); }
   .hero-search-icon { flex: 0 0 auto; color: #fff; font-size: 31px; line-height: 1; }
   .hero-searchbar input { flex: 1 1 auto; width: 0; min-width: 0; border: 0; outline: 0; background: transparent; color: #fff; font: inherit; font-size: 15px; font-weight: 600; }
