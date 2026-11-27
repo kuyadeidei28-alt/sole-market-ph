@@ -55,7 +55,7 @@ export default function Home() {
     document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" })
   }
 >
-  Search
+  Search shoes
 </button>
 
         </div>
