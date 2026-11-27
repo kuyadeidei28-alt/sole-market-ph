@@ -47,9 +47,9 @@ export default function ReferralsPage() {
     }
 
     const { data: auth, error: authError } =
-      await supabase.auth.getUser();
+      await supabase.auth.getSession();
 
-    if (authError || !auth.user) {
+    if (authError || !auth.session?.user) {
       router.replace("/login");
       return;
     }
