@@ -27,6 +27,9 @@ export default function Home() {
   const [category, setCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState("newest");
+  const [heroSlide, setHeroSlide] = useState(0);
+  const heroImages = ["/sole-hero-1.jpg","/sole-hero-2.jpg","/sole-hero-3.jpg","/sole-hero-4.jpg","/sole-hero-5.jpg"];
+  useEffect(() => { const timer = window.setInterval(() => setHeroSlide(v => (v + 1) % heroImages.length), 3000); return () => window.clearInterval(timer); }, []);
 
   useEffect(() => {
     async function load() {
@@ -124,7 +127,9 @@ export default function Home() {
       </div>
 
       <main className="home-main">
-        <section className="hero hero-modern" style={{ backgroundImage: "linear-gradient(90deg, rgba(3,6,13,.72) 0%, rgba(3,6,13,.55) 43%, rgba(3,6,13,.18) 100%), url('/sole-market-hero.webp')", backgroundSize: "cover", backgroundPosition: "center 42%" }}>
+        <section className="hero hero-modern hero-slideshow">
+          <div className="hero-slides" aria-hidden="true">{heroImages.map((image, index) => <div key={image} className={"hero-slide " + (heroSlide === index ? "hero-slide-active" : "")} style={{ backgroundImage: "url(" + image + ")" }} />)}</div>
+          <div className="hero-shade" aria-hidden="true" />
           <div className="hero-copy">
             <span className="eyebrow"><span className="eyebrow-dot" /> THE PHILIPPINES’ SNEAKER MARKETPLACE</span>
             <h1>Find your next<br /><span>favorite pair.</span></h1>
@@ -141,7 +146,7 @@ export default function Home() {
               <a href="#listings" className="hero-search-submit" aria-label="View search results">Search <span aria-hidden="true">→</span></a>
             </div>
           </div>
-
+          <div className="hero-slide-dots">{heroImages.map((image, index) => <button key={image} type="button" className={"hero-slide-dot " + (heroSlide === index ? "active" : "")} onClick={() => setHeroSlide(index)} aria-label={"Show hero image " + (index + 1)} />)}</div>
         </section>
 
         <section className="listings-section" id="listings">
@@ -229,6 +234,18 @@ export default function Home() {
 
 
 <style jsx>{`
+  .hero-slideshow { isolation:isolate; background:#030407; }
+  .hero-slides,.hero-shade { position:absolute; inset:0; z-index:-1; }
+  .hero-slide { position:absolute; inset:0; background-size:cover; background-position:center 42%; opacity:0; transform:scale(1.02); transition:opacity 1s ease,transform 4s ease; }
+  .hero-slide-active { opacity:1; transform:scale(1); }
+  .hero-shade { z-index:0; background:linear-gradient(90deg,rgba(0,0,0,.94),rgba(0,0,0,.82) 38%,rgba(0,0,0,.54) 68%,rgba(0,0,0,.42)),linear-gradient(0deg,rgba(0,0,0,.5),transparent 55%); }
+  .hero-slideshow .hero-copy { z-index:2; }
+  .hero-slide-dots { position:absolute; z-index:3; right:28px; bottom:22px; display:flex; gap:8px; }
+  .hero-slide-dot { width:8px; height:8px; padding:0!important; border:0; border-radius:50%; background:#ffffff80; }
+  .hero-slide-dot.active { width:24px; border-radius:9px; background:#087bff; }
+  @media(max-width:640px){.hero-shade{background:linear-gradient(90deg,rgba(0,0,0,.91),rgba(0,0,0,.65)),linear-gradient(0deg,rgba(0,0,0,.45),transparent)}.hero-slide-dots{right:18px;bottom:15px}}
+  @media(prefers-reduced-motion:reduce){.hero-slide{transition:none;transform:none}}
+
   .trust-ticker { width:100%; overflow:hidden; background:#075CE5; color:#fff; border-top:1px solid rgba(255,255,255,.16); border-bottom:1px solid #064fc5; }
   .trust-ticker-track { display:flex; align-items:center; gap:34px; width:max-content; min-height:42px; padding-left:100%; white-space:nowrap; animation:soleTicker 32s linear infinite; }
   .trust-ticker-track span { flex:0 0 auto; font-size:11px; font-weight:800; letter-spacing:.055em; }
