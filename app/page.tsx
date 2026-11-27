@@ -31,7 +31,25 @@ export default function Home() {
   useEffect(() => {
     async function load() {
       if (!supabase) { setLoading(false); return; }
-      const { data } = await supabase.from("products").select("*").eq("status", "approved").eq("listing_type", "on_hand").order("created_at", { ascending: false });
+      // Prefer the explicit listing type filter. If the additive migration has
+      // not been applied yet, safely fall back to the current approved catalog;
+      // existing listings are all On-Hand until the new listing type is enabled.
+      let { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("status", "approved")
+        .eq("listing_type", "on_hand")
+        .order("created_at", { ascending: false });
+
+      if (error && /listing_type|column/i.test(error.message)) {
+        const fallback = await supabase
+          .from("products")
+          .select("*")
+          .eq("status", "approved")
+          .order("created_at", { ascending: false });
+        data = fallback.data;
+      }
+
       setProducts((data || []) as Product[]);
       setLoading(false);
     }
