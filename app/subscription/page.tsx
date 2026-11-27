@@ -67,15 +67,15 @@ export default function SubscriptionPage() {
       }
 
       try {
-        const { data: auth, error: authError } = await client.auth.getUser();
+        const { data: auth, error: authError } = await client.auth.getSession();
 
-        if (authError || !auth.user) {
+        if (authError || !auth.session?.user) {
           window.location.href = "/login";
           return;
         }
 
         if (!alive) return;
-        setUserId(auth.user.id);
+        setUserId(auth.session.user.id);
 
         const { data: settings, error: settingsError } = await client
           .from("subscription_settings")
