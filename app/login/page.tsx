@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 
 export default function Login() {
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
@@ -16,7 +18,10 @@ export default function Login() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("ref");
-    if (code) setReferralCode(code.trim().toUpperCase());
+
+    if (code) {
+      setReferralCode(code.trim().toUpperCase());
+    }
   }, []);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -28,10 +33,12 @@ export default function Login() {
     }
 
     setBusy(true);
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+
     setBusy(false);
 
     if (error) {
@@ -48,18 +55,20 @@ export default function Login() {
     }
 
     if (!email.trim() || password.length < 6) {
-      setMessage("Enter a valid email and a password with at least 6 characters.");
+      setMessage(
+        "Enter a valid email and a password with at least 6 characters."
+      );
       return;
     }
 
     setBusy(true);
 
     const { error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
       options: {
-        data: referralCode.trim()
-          ? { referral_code: referralCode.trim().toUpperCase() }
+        data: referralCode
+          ? { referral_code: referralCode }
           : {},
       },
     });
@@ -76,16 +85,27 @@ export default function Login() {
   return (
     <>
       <header className="top">
-        <Link className="brand" href="/">SOLE MARKET PH</Link>
-        <nav><Link href="/">Marketplace</Link></nav>
+        <Link className="brand" href="/">
+          SOLE MARKET PH
+        </Link>
+        <nav>
+          <Link href="/">Marketplace</Link>
+        </nav>
       </header>
 
       <main>
         <section className="panel">
           <h1>Seller account</h1>
+
           <p className="muted">
             Create an account or log in to submit shoe listings.
           </p>
+
+          {referralCode && (
+            <p className="notice" role="status">
+              You joined through an invitation link!
+            </p>
+          )}
 
           <form onSubmit={submit}>
             <div className="field">
@@ -109,21 +129,6 @@ export default function Login() {
               />
             </div>
 
-            <div className="field">
-              <label>Referral code (optional)</label>
-              <input
-                type="text"
-                value={referralCode}
-                onChange={(e) =>
-                  setReferralCode(e.target.value.toUpperCase())
-                }
-                placeholder="Enter a referral code if you have one"
-              />
-              <small className="muted">
-                You can register without a referral code.
-              </small>
-            </div>
-
             <button type="submit" disabled={busy}>
               {busy ? "Please wait..." : "Log in"}
             </button>{" "}
@@ -138,7 +143,11 @@ export default function Login() {
             </button>
           </form>
 
-          {message && <p className="notice" role="status">{message}</p>}
+          {message && (
+            <p className="notice" role="status">
+              {message}
+            </p>
+          )}
         </section>
       </main>
     </>
