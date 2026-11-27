@@ -116,6 +116,13 @@ export default function Home() {
         </div>
       </header>
 
+      <div className="trust-ticker" role="region" aria-label="Marketplace notice">
+        <div className="trust-ticker-track">
+          <span>WELCOME TO SOLE MARKET PH!</span><span>SHOP WITH CONFIDENCE.</span><span>WE ENCOURAGE AUTHENTIC PRODUCTS AND RESPONSIBLE SELLING.</span><span>SELLERS AND MARKETPLACE ACTIVITIES ARE SUBJECT TO MONITORING AND REVIEW.</span><span>SUSPICIOUS LISTINGS AND REPORTED SCAM ACTIVITIES MAY BE INVESTIGATED AND APPROPRIATE ACTION MAY BE TAKEN.</span><span>ALL TRADEMARKS, LOGOS, BRAND NAMES, AND COPYRIGHTED MATERIALS BELONG TO THEIR RESPECTIVE OWNERS.</span><span>SOLE MARKET PH IS AN INDEPENDENT MARKETPLACE AND IS NOT AFFILIATED WITH OR ENDORSED BY ANY BRAND UNLESS EXPRESSLY STATED.</span>
+          <span aria-hidden="true">WELCOME TO SOLE MARKET PH!</span><span aria-hidden="true">SHOP WITH CONFIDENCE.</span><span aria-hidden="true">WE ENCOURAGE AUTHENTIC PRODUCTS AND RESPONSIBLE SELLING.</span><span aria-hidden="true">SELLERS AND MARKETPLACE ACTIVITIES ARE SUBJECT TO MONITORING AND REVIEW.</span><span aria-hidden="true">SUSPICIOUS LISTINGS AND REPORTED SCAM ACTIVITIES MAY BE INVESTIGATED AND APPROPRIATE ACTION MAY BE TAKEN.</span><span aria-hidden="true">ALL TRADEMARKS, LOGOS, BRAND NAMES, AND COPYRIGHTED MATERIALS BELONG TO THEIR RESPECTIVE OWNERS.</span><span aria-hidden="true">SOLE MARKET PH IS AN INDEPENDENT MARKETPLACE AND IS NOT AFFILIATED WITH OR ENDORSED BY ANY BRAND UNLESS EXPRESSLY STATED.</span>
+        </div>
+      </div>
+
       <main className="home-main">
         <section className="hero hero-modern">
           <div className="hero-copy">
@@ -237,6 +244,13 @@ export default function Home() {
 
 
 <style jsx>{`
+  .trust-ticker { width:100%; overflow:hidden; background:#075CE5; color:#fff; border-top:1px solid rgba(255,255,255,.16); border-bottom:1px solid #064fc5; }
+  .trust-ticker-track { display:flex; align-items:center; gap:34px; width:max-content; min-height:42px; padding-left:100%; white-space:nowrap; animation:soleTicker 85s linear infinite; }
+  .trust-ticker-track span { flex:0 0 auto; font-size:11px; font-weight:800; letter-spacing:.055em; }
+  .trust-ticker-track span::after { content:"•"; margin-left:34px; color:#bfdbfe; }
+  .trust-ticker:hover .trust-ticker-track { animation-play-state:paused; }
+  @keyframes soleTicker { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .trust-ticker-track { animation:none; padding:13px 16px; width:auto; white-space:normal; flex-wrap:wrap; justify-content:center; } .trust-ticker-track span[aria-hidden="true"] { display:none; } }
   .listing-type-tabs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:0 0 22px; }
   .listing-type-tab { min-height:96px; display:flex; align-items:center; gap:16px; padding:16px 20px; border-radius:16px; border:1px solid #e2e8f0; }
   .listing-type-tab-active { position:relative; color:#fff; background:#075CE5; border-color:#075CE5; box-shadow:0 8px 20px rgba(7,92,229,.15); }
@@ -298,7 +312,7 @@ export default function Home() {
   }
 `}</style>
 
-      <footer className="site-footer"><div className="footer-inner"><Link className="brand footer-brand" href="/"><span className="brand-mark">S</span><span>SOLE MARKET <b>PH</b></span></Link><span>Connecting shoe buyers and sellers across the Philippines.</span><span>© {new Date().getFullYear()} SOLE MARKET PH</span></div></footer>
+      <footer className="site-footer"><div className="footer-inner"><Link className="brand footer-brand" href="/"><span className="brand-mark">S</span><span>SOLE MARKET <b>PH</b></span></Link><span>Connecting shoe buyers and sellers across the Philippines.</span><span>© {new Date().getFullYear()} SOLE MARKET PH</span></div><div className="footer-inner" style={{display:"block",paddingTop:"12px",paddingBottom:"20px",fontSize:"12px",lineHeight:1.6,color:"#64748b"}}><strong>Disclaimer:</strong> SOLE MARKET PH is an independent marketplace and is not affiliated with or endorsed by third-party brands unless expressly stated. All trademarks, logos, brand names, product names, images, and copyrighted materials belong to their respective owners. Listings and product claims are provided by independent sellers. Buyers should verify product authenticity and transaction details before purchasing. Marketplace activity may be monitored; suspicious listings and reported scam activity may be reviewed and appropriate action may be taken under platform policies.</div></footer>
     </>
   );
 }
