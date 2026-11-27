@@ -31,3 +31,43 @@ button, .btn { background:#e3343f; color:white; border:0; border-radius:10px; pa
 .notice { background:#fff7df; border:1px solid #f2df9b; padding:12px; border-radius:10px; color:#665019; line-height:1.5; }
 footer { text-align:center; color:#77839a; padding:25px; font-size:13px; }
 @media(max-width:600px){ .top { align-items:flex-start; flex-direction:column; } nav { flex-wrap:wrap; } .hero { padding:30px 22px; } }
+
+
+/* Clean, full-width blue marketplace search */
+.searchrow { display:block; margin-top:26px; }
+.searchbox {
+  display:flex;
+  align-items:center;
+  gap:18px;
+  width:100%;
+  min-height:78px;
+  padding:0 26px;
+  background:#075CE5;
+  border:1px solid #dbeafe;
+  border-radius:22px;
+}
+.searchicon { width:38px; height:38px; flex:0 0 38px; color:#fff; }
+.searchdivider { width:2px; height:42px; flex:0 0 2px; background:rgba(255,255,255,.75); }
+.searchbox input.searchinput {
+  flex:1;
+  width:100%;
+  min-width:0;
+  height:76px;
+  padding:0;
+  border:0;
+  outline:0;
+  border-radius:0;
+  background:transparent;
+  color:#fff;
+  font-size:clamp(20px,2.5vw,30px);
+  font-weight:700;
+  box-shadow:none;
+}
+.searchbox input.searchinput::placeholder { color:rgba(255,255,255,.92); opacity:1; }
+.searchbox input.searchinput:focus { outline:0; box-shadow:none; }
+@media(max-width:600px) {
+  .searchbox { min-height:66px; padding:0 18px; gap:13px; border-radius:16px; }
+  .searchicon { width:30px; height:30px; flex-basis:30px; }
+  .searchdivider { height:34px; }
+  .searchbox input.searchinput { height:64px; font-size:20px; }
+}
