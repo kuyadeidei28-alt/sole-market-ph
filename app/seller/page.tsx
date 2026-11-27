@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -18,6 +18,25 @@ export default function Seller() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let alive = true;
+    async function loadSellerProfile() {
+      if (!supabase) return;
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name,messenger_url")
+        .eq("id", auth.user.id)
+        .maybeSingle();
+      if (!alive || !data) return;
+      setSeller(current => current || data.display_name || "");
+      setMessenger(current => current || data.messenger_url || "");
+    }
+    void loadSellerProfile();
+    return () => { alive = false; };
+  }, []);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
