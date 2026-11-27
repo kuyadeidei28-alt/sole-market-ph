@@ -5,18 +5,11 @@ import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import { supabase } from "@/lib/supabase";
 
 const QR_IMAGES = [
-  {
-    name: "GCash",
-    file: "1000057693.jpg",
-    url: "https://wkyvumtdlikosgytyydv.supabase.co/storage/v1/object/public/subsciption-qr./1000057693.jpg",
-  },
-  {
-    name: "BPI",
-    file: "1000057695.png",
-    url: "https://wkyvumtdlikosgytyydv.supabase.co/storage/v1/object/public/subsciption-qr./1000057695.png",
-  },
+  { name: "GCash", file: "1000057693.jpg" },
+  { name: "BPI", file: "1000057695.png" },
 ];
 
+const QR_BUCKET = "subscription-qr";
 const BUCKET = "subscription-receipts";
 type PaymentMethod = "GCash" | "BPI";
 
@@ -30,6 +23,8 @@ export default function SubscriptionPage() {
   const [file, setFile] = useState<File | null>(null);
   const [payments, setPayments] = useState<any[]>([]);
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [qrUrls, setQrUrls] = useState<Record<string, string>>({});
+  const [agreementAccepted, setAgreementAccepted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -94,6 +89,25 @@ export default function SubscriptionPage() {
         setEnabled(Boolean(settings.is_enabled));
         setPrice(Number(settings.monthly_price ?? 99));
 
+        // QR storage is private: generate temporary signed URLs instead
+        // of using the previously malformed public URLs.
+        const qrEntries = await Promise.all(
+          QR_IMAGES.map(async (img) => {
+            const { data, error: qrError } = await client.storage
+              .from(QR_BUCKET)
+              .createSignedUrl(img.file, 60 * 60);
+
+            if (qrError) {
+              console.error(`Unable to load ${img.name} QR:`, qrError);
+              return [img.name, ""] as const;
+            }
+
+            return [img.name, data?.signedUrl || ""] as const;
+          })
+        );
+        if (!alive) return;
+        setQrUrls(Object.fromEntries(qrEntries));
+
         await refresh();
       } catch (e: any) {
         if (alive) {
@@ -118,6 +132,11 @@ export default function SubscriptionPage() {
 
     if (!client || !userId) {
       setError("Supabase connection unavailable. Please log in again.");
+      return;
+    }
+
+    if (!agreementAccepted) {
+      setError("Please read and accept the Seller Subscription Agreement.");
       return;
     }
 
@@ -182,6 +201,7 @@ export default function SubscriptionPage() {
 
       setReference("");
       setFile(null);
+      setAgreementAccepted(false);
 
       const input = document.getElementById(
         "receipt-file"
@@ -283,11 +303,15 @@ export default function SubscriptionPage() {
             <div style={styles.qrGrid}>
               {QR_IMAGES.map((img) => (
                 <div key={img.name} style={styles.qrBox}>
-                  <img
-                    src={img.url}
-                    alt={`${img.name} Payment QR`}
-                    style={styles.qr}
-                  />
+                  {qrUrls[img.name] ? (
+                    <img
+                      src={qrUrls[img.name]}
+                      alt={`${img.name} Payment QR`}
+                      style={styles.qr}
+                    />
+                  ) : (
+                    <p style={styles.muted}>QR code is temporarily unavailable.</p>
+                  )}
                   <p style={styles.muted}>{img.name}</p>
                 </div>
               ))}
@@ -300,6 +324,42 @@ export default function SubscriptionPage() {
             </div>
 
             <form onSubmit={submitPayment} style={{ marginTop: 20 }}>
+              <div style={styles.agreement}>
+                <h3 style={{ marginTop: 0 }}>Seller Subscription Agreement</h3>
+                <p>
+                  SOLE MARKET PH operates as an online marketplace and intermediary
+                  that helps sellers display listings and connect with potential buyers.
+                  The platform is not the seller or buyer in any transaction between
+                  users.
+                </p>
+                <p>
+                  Any sale, payment arrangement, delivery, return, refund, and other
+                  transaction terms are agreed directly between the seller and buyer.
+                  Users are responsible for checking product details, authenticity,
+                  condition, seller or buyer information, and the terms of their
+                  transaction before proceeding.
+                </p>
+                <p>
+                  To the extent permitted by applicable law, SOLE MARKET PH is not
+                  responsible for disputes or losses arising from separate transactions
+                  between users, including payment, delivery, product authenticity or
+                  condition, or a user's failure to meet an agreed obligation. Nothing
+                  in this agreement removes rights or obligations that cannot lawfully
+                  be excluded.
+                </p>
+                <label style={styles.agreementCheck}>
+                  <input
+                    type="checkbox"
+                    checked={agreementAccepted}
+                    onChange={(e) => setAgreementAccepted(e.target.checked)}
+                    required
+                  />
+                  <span>
+                    I have read and agree to the Seller Subscription Agreement.
+                  </span>
+                </label>
+              </div>
+
               <label style={styles.label} htmlFor="payment-method">
                 Select payment method
               </label>
@@ -469,6 +529,23 @@ const styles: Record<string, CSSProperties> = {
     padding: 18,
     marginTop: 22,
     lineHeight: 1.6,
+  },
+  agreement: {
+    background: "#f8fafc",
+    border: "1px solid #cbd5e1",
+    borderRadius: 12,
+    padding: 18,
+    marginBottom: 20,
+    lineHeight: 1.6,
+    fontSize: 14,
+  },
+  agreementCheck: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: 10,
+    marginTop: 16,
+    fontWeight: 700,
+    cursor: "pointer",
   },
   error: {
     background: "#fee2e2",
