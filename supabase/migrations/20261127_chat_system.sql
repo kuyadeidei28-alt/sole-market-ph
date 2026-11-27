@@ -33,10 +33,10 @@ create table if not exists public.direct_messages (
 create or replace function public.is_chat_member(p_conversation_id uuid)
 returns boolean
 language sql stable security definer set search_path = ''
-as $
+as $$
   select exists (select 1 from public.direct_conversation_members m
     where m.conversation_id = p_conversation_id and m.user_id = auth.uid());
-$;
+$$;
 revoke all on function public.is_chat_member(uuid) from public;
 grant execute on function public.is_chat_member(uuid) to authenticated;
 
