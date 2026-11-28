@@ -171,7 +171,7 @@ export default function Home() {
           <div className="listing-type-switch" aria-label="Listing availability">
             <div className="listing-type-active" aria-current="page">
               <span className="listing-type-dot" />
-              ON-HAND
+              ON HAND
               <span className="listing-type-subtitle">Available now</span>
             </div>
             <div className="listing-type-coming" aria-disabled="true">
@@ -183,14 +183,14 @@ export default function Home() {
 
           {!supabase && <div className="notice">Connect your Supabase project by creating a .env.local file. See README.md for setup instructions.</div>}
           {loading ? <div className="empty-state"><div className="loading-dot" /><p>Loading listings...</p></div> : filtered.length === 0 ? (
-            <div className="empty-state"><div className="empty-icon">👟</div><h3>{query ? "No shoes found" : "No approved listings yet"}</h3><p>{query ? "Try another shoe name, brand, or keyword." : "When sellers submit products and an administrator approves them, they will appear here."}</p>{query && <button className="btn" onClick={() => setQuery("")}>Clear Search</button>}</div>
+            <div className="empty-state"><div className="empty-icon">👟</div><h3>{query ? "No shoes found" : "No On Hand listings yet"}</h3><p>{query ? "Try another shoe name, brand, or keyword." : "New seller listings appear here as On Hand after marketplace review."}</p>{query && <button className="btn" onClick={() => setQuery("")}>Clear Search</button>}</div>
           ) : (
             <div className="product-grid">
               {filtered.map(p => (
                 <article className="product-card" key={p.id}>
                   <div className="product-photo-wrap">
                     {p.image_url ? <img className="product-photo" src={p.image_url} alt={p.title} /> : <div className="product-photo-placeholder">👟</div>}
-                    <span className="approved-pill">✓ On-Hand</span>
+                    <span className="approved-pill">✓ On Hand</span>
                   </div>
                   <div className="product-info product-info-compact">
                     <p className="product-brand">{p.brand || p.category || "SHOES"}</p>
