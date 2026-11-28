@@ -295,3 +295,14 @@ html[data-theme="dark"] .theme-switch { background:#F4F7FC; color:#111827; borde
     z-index: 95;
   }
 }
+
+
+/* Final mobile stacking fix: theme toggle sits ABOVE the install banner */
+@media (max-width: 640px) {
+  .theme-switch {
+    position: fixed !important;
+    right: 12px !important;
+    bottom: calc(158px + env(safe-area-inset-bottom)) !important;
+    z-index: 95 !important;
+  }
+}
