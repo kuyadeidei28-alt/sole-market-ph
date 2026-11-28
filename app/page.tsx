@@ -175,7 +175,7 @@ export default function Home() {
               <span className="listing-type-subtitle">Available now</span>
             </div>
             <div className="listing-type-coming" aria-disabled="true">
-              <svg className="listing-lock-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" fill="currentColor"/><path d="M8 10V7a4 4 0 1 1 8 0v3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/><circle cx="12" cy="15" r="1.2" fill="#fff"/></svg>
+              <svg className="listing-lock-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style={{ width: 18, height: 18, minWidth: 18, maxWidth: 18, flex: "0 0 18px", display: "block" }}><rect x="5" y="10" width="14" height="11" rx="2" fill="currentColor"/><path d="M8 10V7a4 4 0 1 1 8 0v3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/><circle cx="12" cy="15" r="1.2" fill="#fff"/></svg>
               <span>PRE-ORDER</span>
               <span className="coming-soon-tag">COMING SOON</span>
             </div>
@@ -247,8 +247,8 @@ export default function Home() {
   .listing-type-active { background:#075CE5; border-color:#075CE5; color:#fff; box-shadow:0 5px 14px rgba(7,92,229,.16); }
   .listing-type-dot { width:8px; height:8px; flex:0 0 8px; border-radius:50%; background:#FFD900; }
   .listing-type-subtitle { width:100%; margin-top:-5px; color:#E4EDFF; font-size:10px; font-weight:600; letter-spacing:0; }
-  .listing-type-coming { background:#F7F2FF; border:1.5px solid #8B5CF6; color:#24124B; cursor:not-allowed; box-shadow:0 5px 14px rgba(124,58,237,.12); }\n  .listing-lock-icon { width:19px; height:19px; flex:0 0 19px; color:#6D28D9; }
-  .coming-soon-tag { display:inline-flex; align-items:center; justify-content:center; padding:4px 9px; border-radius:20px; background:#6D28D9; color:#fff; font-size:9px; font-weight:900; letter-spacing:.3px; white-space:nowrap; }
+  .listing-type-coming { background:#F7F2FF; border:1.5px solid #8B5CF6; color:#24124B; cursor:not-allowed; box-shadow:0 5px 14px rgba(124,58,237,.12); display:grid; grid-template-columns:18px auto; grid-template-rows:auto auto; align-content:center; justify-content:center; column-gap:7px; row-gap:4px; min-height:58px; }\n  .listing-lock-icon { width:18px !important; height:18px !important; min-width:18px !important; max-width:18px !important; flex:0 0 18px !important; color:#6D28D9; grid-column:1; grid-row:1; }\n  .listing-type-coming > span:nth-of-type(1) { grid-column:2; grid-row:1; white-space:nowrap; }
+  .coming-soon-tag { display:inline-flex; align-items:center; justify-content:center; grid-column:1 / -1; grid-row:2; justify-self:center; padding:3px 9px; border-radius:20px; background:#6D28D9; color:#fff; font-size:9px; font-weight:900; letter-spacing:.3px; white-space:nowrap; }
   @media (max-width:640px) {
     .listing-type-switch { gap:8px; margin-bottom:15px; }
     .listing-type-active, .listing-type-coming { min-height:54px; gap:5px; padding:9px 6px; font-size:11px; }
