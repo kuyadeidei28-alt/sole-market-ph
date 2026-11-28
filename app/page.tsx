@@ -290,7 +290,7 @@ export default function Home() {
     justify-content:center;
     padding:3px 7px;
     border-radius:20px;
-    background:#6D28D9;
+    background:#DC2626;
     color:#fff;
     font-size:8px;
     font-weight:900;
