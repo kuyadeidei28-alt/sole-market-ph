@@ -1,0 +1,24 @@
+{
+  "id": "/",
+  "name": "SOLE MARKET PH",
+  "short_name": "SOLE MARKET",
+  "description": "Discover sneakers and connect with shoe sellers across the Philippines.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#05070b",
+  "theme_color": "#075CE5",
+  "categories": [
+    "shopping",
+    "lifestyle"
+  ],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
