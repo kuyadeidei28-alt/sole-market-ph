@@ -101,6 +101,7 @@ export default function Home() {
             <Link href="/sellers">Seller Directory</Link>
             <Link href="/community">Community</Link>
             <Link href="/chat">Chat</Link>
+            <Link href="/privacy-policy">Privacy Policy</Link>
           </nav>
           <div className="header-actions">
             <Link className="login-link" href="/login">Seller Login</Link>
