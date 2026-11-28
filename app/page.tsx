@@ -190,7 +190,7 @@ export default function Home() {
                 <article className="product-card" key={p.id}>
                   <div className="product-photo-wrap">
                     {p.image_url ? <img className="product-photo" src={p.image_url} alt={p.title} /> : <div className="product-photo-placeholder">👟</div>}
-                    <span className="approved-pill">✓ Approved</span>
+                    <span className="approved-pill">✓ On-Hand</span>
                   </div>
                   <div className="product-info product-info-compact">
                     <p className="product-brand">{p.brand || p.category || "SHOES"}</p>
