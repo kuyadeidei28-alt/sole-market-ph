@@ -15,6 +15,8 @@ export default function SellerSettingsPage() {
   const [messengerUrl, setMessengerUrl] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [deletionMessage, setDeletionMessage] = useState("");
+  const [deletionBusy, setDeletionBusy] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -68,6 +70,27 @@ export default function SellerSettingsPage() {
     setSaving(false);
   }
 
+  async function requestAccountDeletion() {
+    if (!supabase || deletionBusy) return;
+    const confirmed = window.confirm("Submit an account deletion request? Our team will review it and delete your account and eligible associated data. Some records may be retained where legally required.");
+    if (!confirmed) return;
+    setDeletionBusy(true); setDeletionMessage(""); setError("");
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) { router.replace("/login"); setDeletionBusy(false); return; }
+    const { error: requestError } = await supabase.from("account_deletion_requests").insert({
+      user_id: auth.user.id,
+      user_email: auth.user.email || null,
+      reason: "User requested account deletion from Account Settings",
+      status: "pending"
+    });
+    if (requestError) {
+      setError(requestError.code === "23505" ? "You already have an open account deletion request." : "Unable to submit the request. Please contact Support.");
+    } else {
+      setDeletionMessage("Your account deletion request has been submitted. Our team will review it and process deletion of your account and eligible associated data. You may continue using your account until the request is completed.");
+    }
+    setDeletionBusy(false);
+  }
+
   if (loading) return <main className="panel">Loading seller profile...</main>;
 
   return <>
@@ -88,6 +111,13 @@ export default function SellerSettingsPage() {
           <div className="field"><label htmlFor="bio">About Your Store</label><textarea id="bio" rows={5} maxLength={500} value={bio} onChange={e=>setBio(e.target.value)} placeholder="Tell buyers about your store..." /></div>
           <button type="submit" disabled={saving}>{saving ? "Saving..." : "Save Profile"}</button>
         </form>
+        <section style={{ marginTop: 28, paddingTop: 22, borderTop: "1px solid #e7ebf2" }} aria-labelledby="delete-account-heading">
+          <h2 id="delete-account-heading">Account Deletion</h2>
+          <p className="muted">You can request deletion of your SOLE MARKET PH account and associated personal information here. Requests are reviewed by management. Information required for legal, accounting, security or dispute-resolution purposes may be retained.</p>
+          {deletionMessage && <p className="notice" role="status">{deletionMessage}</p>}
+          <button type="button" disabled={deletionBusy} onClick={requestAccountDeletion} style={{ background: "#b42318", borderColor: "#b42318" }}>{deletionBusy ? "Submitting..." : "Request Account Deletion"}</button>
+          <p className="muted" style={{ marginTop: 10 }}>For questions about this request, visit <Link href="/support">Support</Link> or review our <Link href="/privacy">Privacy Policy</Link>.</p>
+        </section>
       </section>
     </main>
   </>;
