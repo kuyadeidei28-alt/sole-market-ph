@@ -3,6 +3,7 @@ import "./globals.css";
 import ThemeProvider from "./theme-provider";
 import IOSInstallPrompt from "./ios-install-prompt";
 import PushNotifications from "./push-notifications";
+import SiteFooter from "./site-footer";
 
 export const metadata: Metadata = {
   title: "SOLE MARKET PH",
@@ -21,5 +22,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><ThemeProvider>{children}</ThemeProvider><IOSInstallPrompt /><PushNotifications /></body></html>;
+  return <html lang="en"><body><ThemeProvider>{children}<SiteFooter /></ThemeProvider><IOSInstallPrompt /><PushNotifications /></body></html>;
 }
