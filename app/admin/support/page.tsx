@@ -1,0 +1,12 @@
+"use client";
+import {useEffect,useState} from "react";
+import Link from "next/link";
+import {supabase} from "@/lib/supabase";
+type SupportRow={id:string;user_id:string|null;name:string;email:string;subject:string;message:string;status:string;admin_notes:string|null;created_at:string};
+export default function AdminSupport(){
+ const [rows,setRows]=useState<SupportRow[]>([]);const [message,setMessage]=useState("Loading support requests...");const [busy,setBusy]=useState("");
+ async function load(){if(!supabase){setMessage("Supabase unavailable.");return;}const {data,error}=await supabase.rpc("admin_list_support_requests");if(error){setMessage(error.message);return;}setRows((data||[]) as SupportRow[]);setMessage(data?.length?"":"No support requests.");}
+ useEffect(()=>{void load();},[]);
+ async function update(r:SupportRow,status:string){if(!supabase)return;const notes=window.prompt("Internal admin notes (optional):",r.admin_notes||"");if(notes===null)return;setBusy(r.id);const {error}=await supabase.rpc("admin_update_support_request",{p_request_id:r.id,p_status:status,p_notes:notes});setBusy("");if(error){setMessage(error.message);return;}setMessage("Support request updated.");await load();}
+ return <><header className="top"><Link className="brand" href="/admin">SOLE MARKET PH</Link><nav><Link href="/admin">Admin Dashboard</Link><Link href="/admin/deletion-requests">Deletion Requests</Link></nav></header><main><section className="panel" style={{maxWidth:900}}><h1>Support Inbox</h1><p className="muted">Review user questions, safety concerns and privacy requests. Reply to the email address provided by the user using the support channel configured by management.</p>{message&&<p className="notice">{message}</p>}{rows.map(r=><article className="card" key={r.id} style={{padding:16,marginBottom:12}}><h2>{r.subject}</h2><p><strong>From:</strong> {r.name} · <a href={"mailto:"+r.email}>{r.email}</a></p><p><strong>Date:</strong> {new Date(r.created_at).toLocaleString()}</p><p style={{whiteSpace:"pre-wrap"}}>{r.message}</p><p><strong>Status:</strong> {r.status}</p>{r.admin_notes&&<p><strong>Notes:</strong> {r.admin_notes}</p>}<div style={{display:"flex",gap:8,flexWrap:"wrap"}}><button disabled={busy===r.id} onClick={()=>update(r,"in_progress")}>In Progress</button><button disabled={busy===r.id} onClick={()=>update(r,"resolved")}>Resolve</button><button disabled={busy===r.id} onClick={()=>update(r,"closed")}>Close</button></div></article>)}</section></main></>;
+}
