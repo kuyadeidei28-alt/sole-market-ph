@@ -56,7 +56,7 @@ export default function IOSInstallPrompt() {
 
   return (
     <>
-      <div style={{ position: "fixed", zIndex: 90, left: 12, right: 12, bottom: "calc(12px + env(safe-area-inset-bottom))", maxWidth: 520, margin: "0 auto", padding: "12px 14px", borderRadius: 16, background: "#101827", color: "#fff", border: "1px solid rgba(255,255,255,.16)", boxShadow: "0 10px 35px rgba(0,0,0,.3)", display: "flex", alignItems: "center", gap: 12 }}>
+      <div className="install-prompt" style={{ position: "fixed", zIndex: 90, left: 12, right: 12, bottom: "calc(12px + env(safe-area-inset-bottom))", maxWidth: 520, margin: "0 auto", padding: "12px 14px", borderRadius: 16, background: "#101827", color: "#fff", border: "1px solid rgba(255,255,255,.16)", boxShadow: "0 10px 35px rgba(0,0,0,.3)", display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ width: 42, height: 42, borderRadius: 11, overflow: "hidden", flexShrink: 0, background: "#000" }}>
           <img src="/sole-market-app-icon-v2.svg" alt="SOLE MARKET PH" width="42" height="42" />
         </div>
