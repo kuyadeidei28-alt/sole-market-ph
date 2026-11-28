@@ -2,6 +2,23 @@ import Link from "next/link";
 
 const FACEBOOK_GROUP_URL = "https://www.facebook.com/share/g/19rvbpYqBp/";
 
+const communities = [
+  {
+    name: "VOMERO & P6000 SALE PH",
+    members: "14K members",
+    image: "/communities/vomero-p6000.webp",
+    url: "https://www.facebook.com/share/g/192bSzZ6No/",
+    note: "Sneaker buy & sell community",
+  },
+  {
+    name: "SOLE SLAM COMMUNITY V2",
+    members: "24K members",
+    image: "/communities/sole-slam.webp",
+    url: "https://www.facebook.com/share/g/19qfkKAcqe/",
+    note: "Sneaker community",
+  },
+];
+
 export default function CommunityPage() {
   return (
     <main style={{ maxWidth: 980, margin: "0 auto", padding: "32px 20px 64px" }}>
@@ -26,6 +43,68 @@ export default function CommunityPage() {
         </a>
       </section>
 
+      <section aria-labelledby="community-list-title" style={{ marginBottom: 28 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 12, marginBottom: 14 }}>
+          <div>
+            <p style={{ color: "#64748b", fontSize: 12, fontWeight: 800, letterSpacing: 2, margin: 0 }}>DISCOVER MORE GROUPS</p>
+            <h2 id="community-list-title" style={{ fontSize: 24, fontWeight: 850, color: "#111827", margin: "5px 0 0" }}>Sneaker Communities</h2>
+          </div>
+          <span style={{ color: "#64748b", fontSize: 12, whiteSpace: "nowrap" }}>Swipe to explore →</span>
+        </div>
+        <div style={{
+          display: "flex",
+          gap: 16,
+          overflowX: "auto",
+          padding: "2px 2px 14px",
+          scrollSnapType: "x mandatory",
+          WebkitOverflowScrolling: "touch"
+        }}>
+          {communities.map((community) => (
+            <article key={community.name} style={{
+              flex: "0 0 min(84vw, 420px)",
+              minWidth: 0,
+              background: "#fff",
+              border: "1px solid #e2e8f0",
+              borderRadius: 18,
+              overflow: "hidden",
+              scrollSnapAlign: "start",
+              boxShadow: "0 4px 18px rgba(15, 23, 42, 0.06)"
+            }}>
+              <img
+                src={community.image}
+                alt={community.name + " Facebook group cover"}
+                style={{ display: "block", width: "100%", height: 180, objectFit: "cover", background: "#080808" }}
+              />
+              <div style={{ padding: 18 }}>
+                <h3 style={{ color: "#111827", fontSize: 19, lineHeight: 1.25, fontWeight: 850, margin: "0 0 9px" }}>
+                  {community.name}
+                </h3>
+                <p style={{ color: "#64748b", fontSize: 14, margin: "0 0 5px" }}>
+                  <strong style={{ color: "#111827" }}>{community.members}</strong>
+                  <span> · Facebook group</span>
+                </p>
+                <p style={{ color: "#64748b", fontSize: 13, margin: "0 0 16px" }}>{community.note}</p>
+                <a href={community.url} target="_blank" rel="noopener noreferrer" style={{
+                  display: "block",
+                  textAlign: "center",
+                  background: "#1877F2",
+                  color: "#fff",
+                  padding: "12px 16px",
+                  borderRadius: 10,
+                  fontWeight: 800,
+                  textDecoration: "none"
+                }}>
+                  Join Community on Facebook
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+        <p style={{ color: "#94a3b8", fontSize: 11, lineHeight: 1.5, margin: "2px 2px 0" }}>
+          Member counts shown are from the screenshots provided. Automatic live updates are not connected yet.
+        </p>
+      </section>
+
       <section style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 16, padding: 24 }}>
         <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 10 }}>Welcome, sneakerheads!</h2>
         <p style={{ color: "#475569", lineHeight: 1.7 }}>
@@ -36,22 +115,11 @@ export default function CommunityPage() {
           Facebook posts and group messages remain on Facebook. Website-based community posts and live chat
           can be added as a separate feature.
         </p>
-        <span
-          aria-disabled="true"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 10,
-            marginTop: 18,
-            marginRight: 18,
-            padding: "10px 14px",
-            borderRadius: 10,
-            background: "#e2e8f0",
-            color: "#475569",
-            fontWeight: 700,
-            cursor: "not-allowed"
-          }}
-        >
+        <span aria-disabled="true" style={{
+          display: "inline-flex", alignItems: "center", gap: 10, marginTop: 18, marginRight: 18,
+          padding: "10px 14px", borderRadius: 10, background: "#e2e8f0", color: "#475569",
+          fontWeight: 700, cursor: "not-allowed"
+        }}>
           <span aria-hidden="true">💬</span>
           Website Chat — Coming Soon
         </span>
