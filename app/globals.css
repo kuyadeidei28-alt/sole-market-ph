@@ -322,3 +322,47 @@ html[data-theme="dark"] .theme-switch { background:#F4F7FC; color:#111827; borde
   .theme-switch span:first-child { font-size: 21px; }
   .theme-switch-label { display: none !important; }
 }
+
+
+/* Final product-card image normalization: keep every listing image inside
+   the same frame and prevent tall uploads from covering product details. */
+.product-card { min-width: 0; display: flex; flex-direction: column; }
+.product-photo-wrap {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 220px !important;
+  min-height: 220px !important;
+  max-height: 220px !important;
+  padding: 12px !important;
+  overflow: hidden !important;
+  flex: 0 0 220px !important;
+}
+.product-photo-wrap > .product-photo,
+.product-photo-wrap > img {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+}
+.product-info-compact { position: relative; flex: 1 1 auto; min-width: 0; }
+.product-info-compact .product-brand,
+.product-info-compact h3,
+.product-info-compact .product-size-pill { position: relative; z-index: 1; }
+@media (max-width: 640px) {
+  .product-photo-wrap {
+    height: 155px !important;
+    min-height: 155px !important;
+    max-height: 155px !important;
+    flex-basis: 155px !important;
+    padding: 8px !important;
+  }
+}
