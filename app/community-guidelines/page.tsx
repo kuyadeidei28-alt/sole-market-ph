@@ -1,0 +1,14 @@
+import Link from "next/link";
+
+export const metadata = { title: "Community Guidelines | SOLE MARKET PH", description: "Marketplace and community safety rules." };
+const rules = [
+["Be honest","Use accurate listing titles, photographs, descriptions, sizes, condition, prices, and availability. Do not misrepresent an item or seller identity."],
+["No counterfeit or illegal listings","Do not list counterfeit or replica goods as authentic, stolen property, prohibited items, or anything unlawful. Do not misuse brand names, logos, or another person’s photos."],
+["No scams or suspicious payment requests","Do not impersonate staff, request passwords or one-time codes, send fake receipts, manipulate payment evidence, or pressure users into unsafe transactions."],
+["Respect privacy","Do not publish another person’s government ID, phone number, address, private messages, or other personal information without a lawful basis and permission."],
+["Respect other members","No harassment, threats, hate, bullying, sexual exploitation, spam, or abusive behavior."],
+["Use reports responsibly","Report suspected counterfeit goods, scams, misleading listings, fake photos, wrong details, suspicious activity, or harassment. Provide truthful details and do not submit knowingly false or malicious reports."],
+["Seller verification is not a guarantee","Verification helps the Platform review seller information. It does not certify every item or guarantee a seller’s future behavior. Buyers should still do their own checks."],
+["Moderation","SOLE MARKET PH may review reports and listings and may remove content, limit features, or suspend accounts when necessary to protect the community or comply with law."]
+];
+export default function CommunityGuidelinesPage(){return <main style={{maxWidth:860,margin:"0 auto",padding:"32px 18px 70px"}}><Link href="/" style={{color:"#075ce5",fontWeight:800}}>← SOLE MARKET PH</Link><header style={{padding:"28px 0 20px"}}><p style={{color:"#075ce5",fontSize:12,fontWeight:900,letterSpacing:2}}>SAFETY FIRST</p><h1 style={{fontSize:"clamp(32px,6vw,46px)",margin:"8px 0"}}>Community Guidelines</h1><p style={{color:"#64748b"}}>Help keep SOLE MARKET PH a safer place for sneaker buyers, sellers, and collectors.</p></header><article style={{display:"grid",gap:12}}>{rules.map(([h,b],i)=><section key={h} style={{background:"#fff",border:"1px solid #e2e8f0",borderRadius:14,padding:20}}><h2 style={{fontSize:18,margin:"0 0 7px",color:"#111827"}}>{i+1}. {h}</h2><p style={{margin:0,color:"#475569",lineHeight:1.7}}>{b}</p></section>)}</article><p style={{color:"#64748b",fontSize:13,lineHeight:1.6,marginTop:20}}>For marketplace use, also read our <Link href="/terms-of-service" style={{color:"#075ce5"}}>Terms of Service</Link> and <Link href="/privacy-policy" style={{color:"#075ce5"}}>Privacy Policy</Link>.</p></main>}
