@@ -10,7 +10,13 @@
   "icons": [
     {
       "src": "/sole-market-app-icon-v2.svg",
-      "sizes": "any",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/sole-market-app-icon-v2.svg",
+      "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
