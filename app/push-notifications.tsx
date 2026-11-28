@@ -103,7 +103,7 @@ export default function PushNotifications() {
       <div style={{display:"flex",flexDirection:"column",gap:5,flexShrink:0}}>
         {subscribed
           ? <button type="button" disabled={busy} style={action} onClick={disable}>{busy ? "Wait…" : "Turn off"}</button>
-          : <button type="button" disabled={busy || permission==="denied"} style={{...action,opacity:busy||permission==="denied"?.55:1}} onClick={enable}>
+          : <button type="button" disabled={busy || permission==="denied"} style={{...action,opacity: (busy || permission === "denied") ? 0.55 : 1}} onClick={enable}>
               {busy ? "Wait…" : permission==="denied" ? "Blocked" : "Enable"}
             </button>}
         <button type="button" aria-label="Dismiss notification prompt" onClick={()=>setDismissed(true)}
