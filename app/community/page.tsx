@@ -36,7 +36,26 @@ export default function CommunityPage() {
           Facebook posts and group messages remain on Facebook. Website-based community posts and live chat
           can be added as a separate feature.
         </p>
-        <Link href="/chat" style={{ display: "inline-block", marginTop: 18, marginRight: 18, color: "#075ce5", fontWeight: 700, textDecoration: "none" }}>Open Website Chat →</Link>\n        <Link href="/" style={{ display: "inline-block", marginTop: 18, color: "#075ce5", fontWeight: 700, textDecoration: "none" }}>
+        <span
+          aria-disabled="true"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 10,
+            marginTop: 18,
+            marginRight: 18,
+            padding: "10px 14px",
+            borderRadius: 10,
+            background: "#e2e8f0",
+            color: "#475569",
+            fontWeight: 700,
+            cursor: "not-allowed"
+          }}
+        >
+          <span aria-hidden="true">💬</span>
+          Website Chat — Coming Soon
+        </span>
+        <Link href="/" style={{ display: "inline-block", marginTop: 18, color: "#075ce5", fontWeight: 700, textDecoration: "none" }}>
           ← Back to Marketplace
         </Link>
       </section>
