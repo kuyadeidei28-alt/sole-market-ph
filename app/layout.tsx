@@ -9,7 +9,8 @@ export const metadata: Metadata = {
   description: "Find shoes and connect directly with sellers across the Philippines.",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: [{ url: "/sole-market-app-icon-v2.svg", type: "image/svg+xml" }]
+    icon: [{ url: "/sole-market-app-icon-v2.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }]
   },
   appleWebApp: {
     capable: true,
