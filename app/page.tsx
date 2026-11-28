@@ -93,7 +93,7 @@ export default function Home() {
       <header className="site-header">
         <div className="header-inner">
           <Link className="brand" href="/" aria-label="Sole Market PH home">
-            <span className="brand-mark">S</span>
+            <img className="brand-mark-image" src="/sole-market-logo.svg" alt="Sole Market PH logo" />
             <span>SOLE MARKET <b>PH</b></span>
           </Link>
           <nav className="main-nav" aria-label="Main navigation">
@@ -214,6 +214,8 @@ export default function Home() {
 
 
 <style jsx>{`
+  .brand-mark-image { display:block; flex:0 0 auto; width:34px; height:34px; object-fit:contain; border-radius:8px; }
+  .footer-brand .brand-mark-image { width:27px; height:27px; }
   .report-listing-btn { display:block; margin:9px auto 0; padding:5px 8px; border:0; background:transparent; color:#64748b; font-size:11px; text-decoration:underline; cursor:pointer; }
   .hero-searchbar { display: flex; align-items: center; gap: 12px; width: min(100%, 590px); min-height: 64px; margin-top: 27px; padding: 8px 9px 8px 20px; border: 1px solid rgba(255,255,255,.2); border-radius: 16px; background: #075CE5; box-shadow: 0 12px 30px rgba(7,92,229,.24); }
   .hero-search-icon { flex: 0 0 auto; color: #fff; font-size: 31px; line-height: 1; }
@@ -253,7 +255,7 @@ export default function Home() {
   }
 `}</style>
 
-      <footer className="site-footer"><div className="footer-inner"><Link className="brand footer-brand" href="/"><span className="brand-mark">S</span><span>SOLE MARKET <b>PH</b></span></Link><span>Connecting shoe buyers and sellers across the Philippines.</span><span>© {new Date().getFullYear()} SOLE MARKET PH</span></div></footer>
+      <footer className="site-footer"><div className="footer-inner"><Link className="brand footer-brand" href="/"><img className="brand-mark-image" src="/sole-market-logo.svg" alt="Sole Market PH logo" /><span>SOLE MARKET <b>PH</b></span></Link><span>Connecting shoe buyers and sellers across the Philippines.</span><span>© {new Date().getFullYear()} SOLE MARKET PH</span></div></footer>
     </>
   );
 }
