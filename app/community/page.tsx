@@ -130,7 +130,7 @@ export default function CommunityPage() {
           <span>Website Chat</span>
           <span style={{
             display: "inline-flex", alignItems: "center", justifyContent: "center",
-            padding: "4px 9px", borderRadius: 20, background: "#6d28d9",
+            padding: "4px 9px", borderRadius: 20, background: "#DC2626",
             color: "#fff", fontSize: 10, fontWeight: 900, letterSpacing: ".3px",
             whiteSpace: "nowrap"
           }}>COMING SOON</span>
