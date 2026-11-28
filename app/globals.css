@@ -285,3 +285,13 @@ html[data-theme="dark"] .theme-switch { background:#F4F7FC; color:#111827; borde
  .hero-slideshow .hero-slide-dots { right:18px; bottom:18px; }
  .hero-slideshow .hero-shade { background:linear-gradient(90deg,rgba(3,7,15,.88),rgba(3,7,15,.56)); }
 }
+
+
+/* Keep the floating theme switch clear of the mobile install banner */
+@media (max-width: 640px) {
+  .theme-switch {
+    right: 12px;
+    bottom: calc(112px + env(safe-area-inset-bottom));
+    z-index: 95;
+  }
+}
