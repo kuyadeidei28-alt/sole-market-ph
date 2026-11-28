@@ -115,14 +115,26 @@ export default function CommunityPage() {
           Facebook posts and group messages remain on Facebook. Website-based community posts and live chat
           can be added as a separate feature.
         </p>
-        <span aria-disabled="true" style={{
-          display: "inline-flex", alignItems: "center", gap: 10, marginTop: 18, marginRight: 18,
-          padding: "10px 14px", borderRadius: 10, background: "#e2e8f0", color: "#475569",
-          fontWeight: 700, cursor: "not-allowed"
+        <div aria-disabled="true" style={{
+          display: "inline-flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap",
+          gap: 9, marginTop: 18, marginRight: 18, padding: "11px 14px",
+          border: "1.5px solid #8b5cf6", borderRadius: 12, background: "#f7f2ff",
+          color: "#24124b", fontWeight: 800, cursor: "not-allowed",
+          boxShadow: "0 5px 14px rgba(124,58,237,.12)"
         }}>
-          <span aria-hidden="true">💬</span>
-          Website Chat — Coming Soon
-        </span>
+          <svg width="19" height="19" viewBox="0 0 24 24" aria-hidden="true" style={{ color: "#6d28d9", flex: "0 0 19px" }}>
+            <rect x="5" y="10" width="14" height="11" rx="2" fill="currentColor" />
+            <path d="M8 10V7a4 4 0 1 1 8 0v3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+            <circle cx="12" cy="15" r="1.2" fill="#fff" />
+          </svg>
+          <span>Website Chat</span>
+          <span style={{
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+            padding: "4px 9px", borderRadius: 20, background: "#6d28d9",
+            color: "#fff", fontSize: 10, fontWeight: 900, letterSpacing: ".3px",
+            whiteSpace: "nowrap"
+          }}>COMING SOON</span>
+        </div>
         <Link href="/" style={{ display: "inline-block", marginTop: 18, color: "#075ce5", fontWeight: 700, textDecoration: "none" }}>
           ← Back to Marketplace
         </Link>
