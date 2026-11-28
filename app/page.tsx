@@ -182,7 +182,7 @@ export default function Home() {
                   <div className="product-info product-info-compact">
                     <p className="product-brand">{p.brand || p.category || "SHOES"}</p>
                     <h3>{p.title}</h3>
-                    {p.size && <p className="product-size product-size-pill">Size: {p.size}</p>}
+                    {p.size && <p className="product-size product-size-pill">Size Available: {p.size}</p>}
                     <div className="product-bottom product-bottom-compact">
                       <div><span className="price-label">PRICE</span><p className="product-price">₱{Number(p.price).toLocaleString("en-PH")}</p></div>
                       <span className="seller-label">{p.seller_name || "Marketplace seller"}</span>
@@ -232,7 +232,7 @@ export default function Home() {
   .product-info-compact { padding: 13px 14px 14px; }
   .product-info-compact .product-brand { margin-bottom: 3px; font-size: 10px; }
   .product-info-compact h3 { min-height: 0; margin: 0 0 8px; font-size: 17px; line-height: 1.2; letter-spacing: -.25px; }
-  .product-size-pill { display: inline-flex; align-items: center; margin: 0 0 9px; padding: 6px 10px; border-radius: 9px; background: #F0F1F3; color: #202633; font-size: 12px; font-weight: 700; }
+  .product-size-pill { display: inline-flex; align-items: center; margin: 0 0 9px; padding: 7px 11px; border-radius: 10px; background: #FFD900; color: #111827; font-size: 12px; font-weight: 800; }
   .product-bottom-compact { align-items: center; padding-top: 9px; margin-top: 2px; border-top: 1px solid #E8EBF0; }
   .product-bottom-compact .price-label { font-size: 9px; }
   .product-bottom-compact .product-price { margin-top: 1px; font-size: 23px; line-height: 1.1; white-space: nowrap; }
