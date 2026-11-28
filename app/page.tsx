@@ -26,7 +26,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState("newest");
   const [heroSlide, setHeroSlide] = useState(0);
-  const [blockedSellerIds, setBlockedSellerIds] = useState<string[]>([]);
   const heroImages = [
     "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=1600&q=85",
     "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1600&q=85",
@@ -43,11 +42,6 @@ export default function Home() {
   useEffect(() => {
     async function load() {
       if (!supabase) { setLoading(false); return; }
-      const { data: auth } = await supabase.auth.getUser();
-      if (auth.user) {
-        const { data: blocks } = await supabase.from("user_blocks").select("blocked_user_id").eq("blocker_id", auth.user.id);
-        setBlockedSellerIds((blocks || []).map((row: { blocked_user_id: string }) => row.blocked_user_id));
-      }
       const { data } = await supabase.from("products").select("*").eq("status", "approved").order("created_at", { ascending: false });
       setProducts((data || []) as Product[]);
       setLoading(false);
@@ -83,22 +77,7 @@ export default function Home() {
     else window.alert("Thank you. Your report has been submitted for admin review.");
   }
 
-  async function blockSeller(product: Product) {
-    if (!supabase) return;
-    const { data: auth } = await supabase.auth.getUser();
-    const user = auth.user;
-    if (!user) { window.alert("Please log in first to block a seller."); window.location.href = "/login"; return; }
-    if (user.id === product.seller_id) { window.alert("You cannot block your own account."); return; }
-    if (blockedSellerIds.includes(product.seller_id)) { window.alert("This seller is already blocked."); return; }
-    if (!window.confirm("Block this seller? Their listings will be hidden from your marketplace view.")) return;
-    const { error } = await supabase.from("user_blocks").insert({ blocker_id: user.id, blocked_user_id: product.seller_id });
-    if (error) { window.alert("Unable to block this seller. Please try again later."); return; }
-    setBlockedSellerIds(current => [...current, product.seller_id]);
-    window.alert("Seller blocked. Their listings are now hidden from your marketplace view.");
-  }
-
   const filtered = useMemo(() => products.filter(p => {
-    if (blockedSellerIds.includes(p.seller_id)) return false;
     const searchable = `${p.title} ${p.brand || ""} ${p.description || ""} ${p.category || ""}`.toLowerCase();
     const matchesText = searchable.includes(query.toLowerCase().trim());
     const matchesCategory = category === "All" || p.category === category;
@@ -107,7 +86,7 @@ export default function Home() {
     if (sort === "price-low") return Number(a.price) - Number(b.price);
     if (sort === "price-high") return Number(b.price) - Number(a.price);
     return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-  }), [products, query, category, sort, blockedSellerIds]);
+  }), [products, query, category, sort]);
 
   return (
     <>
@@ -237,10 +216,7 @@ export default function Home() {
                       </>
                     )}
                     {!p.messenger_url && <Link className="message-seller-btn" href="/sellers">Find Seller <span>→</span></Link>}
-                    <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
-                      <button type="button" className="report-listing-btn" onClick={() => void reportProduct(p)}>Report Listing</button>
-                      <button type="button" className="report-listing-btn" onClick={() => void blockSeller(p)}>Block Seller</button>
-                    </div>
+                    <button type="button" className="report-listing-btn" onClick={() => void reportProduct(p)}>Report Listing</button>
                   </div>
                 </article>
               ))}
