@@ -1,0 +1,18 @@
+{
+  "name": "SOLE MARKET PH",
+  "short_name": "SOLE MARKET",
+  "description": "Find shoes and connect directly with sellers across the Philippines.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/sole-market-app-icon-v2.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
