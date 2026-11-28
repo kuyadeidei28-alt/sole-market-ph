@@ -217,7 +217,7 @@ export default function Seller() {
                 ? `You're signed in as ${signedInEmail}. You can post your shoe listing below.`
                 : "Please log in to your seller account before submitting a listing."
               : "Checking your seller login..."}
-            {" "}New listings are pending until approved by an administrator.
+            {" "}New listings are reviewed by the marketplace team before appearing as On Hand.
           </p>
           {authChecked && !signedInEmail && (
             <p><Link className="btn" href="/login">Seller Login</Link></p>
