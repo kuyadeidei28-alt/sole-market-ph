@@ -7,14 +7,14 @@ const communities = [
     name: "VOMERO & P6000 SALE PH",
     members: "14K members",
     image: "/communities/vomero-p6000.webp",
-    url: "https://www.facebook.com/share/g/192bSzZ6No/",
+    url: "https://www.facebook.com/share/g/19qfkKAcqe/",
     note: "Sneaker buy & sell community",
   },
   {
     name: "SOLE SLAM COMMUNITY V2",
     members: "24K members",
     image: "/communities/sole-slam.webp",
-    url: "https://www.facebook.com/share/g/19qfkKAcqe/",
+    url: "https://www.facebook.com/share/g/192bSzZ6No/",
     note: "Sneaker community",
   },
 ];
