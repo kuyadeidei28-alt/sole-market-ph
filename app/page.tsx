@@ -168,6 +168,18 @@ export default function Home() {
             </div>
           </div>
 
+          <div className="listing-type-switch" aria-label="Listing availability">
+            <div className="listing-type-active" aria-current="page">
+              <span className="listing-type-dot" />
+              ON-HAND
+              <span className="listing-type-subtitle">Available now</span>
+            </div>
+            <div className="listing-type-coming" aria-disabled="true">
+              PRE-ORDER
+              <span className="coming-soon-tag">COMING SOON</span>
+            </div>
+          </div>
+
           {!supabase && <div className="notice">Connect your Supabase project by creating a .env.local file. See README.md for setup instructions.</div>}
           {loading ? <div className="empty-state"><div className="loading-dot" /><p>Loading listings...</p></div> : filtered.length === 0 ? (
             <div className="empty-state"><div className="empty-icon">👟</div><h3>{query ? "No shoes found" : "No approved listings yet"}</h3><p>{query ? "Try another shoe name, brand, or keyword." : "When sellers submit products and an administrator approves them, they will appear here."}</p>{query && <button className="btn" onClick={() => setQuery("")}>Clear Search</button>}</div>
@@ -228,6 +240,19 @@ export default function Home() {
     .hero-search-icon { font-size: 26px; }
     .hero-searchbar input { font-size: 12px; }
     .hero-search-submit { min-height: 42px; padding: 0 12px; font-size: 12px; }
+  }
+  .listing-type-switch { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 20px; }
+  .listing-type-active, .listing-type-coming { min-width:0; min-height:58px; display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; padding:11px 12px; border:1px solid #DCE4F0; border-radius:12px; font-size:13px; font-weight:900; letter-spacing:.35px; text-align:center; }
+  .listing-type-active { background:#075CE5; border-color:#075CE5; color:#fff; box-shadow:0 5px 14px rgba(7,92,229,.16); }
+  .listing-type-dot { width:8px; height:8px; flex:0 0 8px; border-radius:50%; background:#FFD900; }
+  .listing-type-subtitle { width:100%; margin-top:-5px; color:#E4EDFF; font-size:10px; font-weight:600; letter-spacing:0; }
+  .listing-type-coming { background:#F1F3F6; color:#7B8493; cursor:not-allowed; }
+  .coming-soon-tag { padding:4px 7px; border-radius:20px; background:#E1E5EB; color:#596273; font-size:9px; letter-spacing:.3px; }
+  @media (max-width:640px) {
+    .listing-type-switch { gap:8px; margin-bottom:15px; }
+    .listing-type-active, .listing-type-coming { min-height:54px; gap:5px; padding:9px 6px; font-size:11px; }
+    .listing-type-subtitle { font-size:9px; }
+    .coming-soon-tag { font-size:8px; }
   }
   .product-info-compact { padding: 13px 14px 14px; }
   .product-info-compact .product-brand { margin-bottom: 3px; font-size: 10px; }
