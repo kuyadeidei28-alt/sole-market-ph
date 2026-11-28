@@ -329,7 +329,7 @@ export default function Home() {
   }
 `}</style>
 
-      <footer className="site-footer"><div className="footer-inner"><Link className="brand footer-brand" href="/"><img className="brand-mark-image" src="/sole-market-logo.svg" alt="Sole Market PH logo" /><span>SOLE MARKET <b>PH</b></span></Link><span>Connecting shoe buyers and sellers across the Philippines.</span><span>© {new Date().getFullYear()} SOLE MARKET PH</span></div></footer>
+      <footer className="site-footer"><div className="footer-inner"><Link className="brand footer-brand" href="/"><img className="brand-mark-image" src="/sole-market-logo.svg" alt="Sole Market PH logo" /><span>SOLE MARKET <b>PH</b></span></Link><span>Connecting shoe buyers and sellers across the Philippines.</span><nav aria-label="Legal links" style={{display:"flex",flexWrap:"wrap",gap:"12px",fontSize:11,fontWeight:700}}><Link href="/privacy-policy">Privacy Policy</Link><Link href="/terms-of-service">Terms</Link><Link href="/community-guidelines">Community Guidelines</Link><Link href="/account-deletion">Account Deletion</Link></nav><span>© {new Date().getFullYear()} SOLE MARKET PH</span></div></footer>
     </>
   );
 }
