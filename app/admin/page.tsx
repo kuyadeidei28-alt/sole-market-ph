@@ -422,6 +422,8 @@ export default function AdminDashboard() {
             <Link href="/admin/referrals">Referral Management</Link>
             <Link href="/admin/verifications">Seller Verifications</Link>
             <Link href="/admin/reports">Reports</Link>
+            <Link href="/admin/support">Support Inbox</Link>
+            <Link href="/admin/deletion-requests">Account Deletion Requests</Link>
             <Link href="/admin/announcements">Announcements & Push Notifications</Link>
             <Link href="/dashboard">Seller Dashboard</Link>
           </div>
